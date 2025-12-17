@@ -46,6 +46,8 @@ func Setup(mode string) *gin.Engine {
 	patientHandler := handler.NewPatientHandler()
 	tokenHandler := handler.NewTokenHandler()
 	appointmentHandler := handler.NewAppointmentHandler()
+	medicalRecordHandler := handler.NewMedicalRecordHandler()
+	statisticsHandler := handler.NewStatisticsHandler()
 
 	// API路由组
 	api := r.Group("/api")
@@ -54,10 +56,10 @@ func Setup(mode string) *gin.Engine {
 		setupPublicRoutes(api, deptHandler, doctorHandler, scheduleHandler, userHandler)
 
 		// 用户接口（需要用户认证）
-		setupUserRoutes(api, userHandler, patientHandler, tokenHandler, appointmentHandler)
+		setupUserRoutes(api, userHandler, patientHandler, tokenHandler, appointmentHandler, medicalRecordHandler)
 
 		// 管理后台接口（需要管理员认证）
-		setupAdminRoutes(api, adminHandler, deptHandler, doctorHandler, scheduleHandler, uploadHandler, appointmentHandler)
+		setupAdminRoutes(api, adminHandler, deptHandler, doctorHandler, scheduleHandler, uploadHandler, appointmentHandler, patientHandler, statisticsHandler)
 	}
 
 	return r
@@ -69,7 +71,7 @@ func setupPublicRoutes(rg *gin.RouterGroup, deptHandler *handler.DepartmentHandl
 	rg.POST("/user/login", userHandler.WeChatLogin)
 
 	// Token刷新
-	rg.POST("/auth/refresh", placeholder("刷新Token"))
+	rg.POST("/auth/refresh", userHandler.RefreshToken)
 
 	// 科室列表（公开）
 	rg.GET("/departments", deptHandler.ListAll)
@@ -84,7 +86,7 @@ func setupPublicRoutes(rg *gin.RouterGroup, deptHandler *handler.DepartmentHandl
 }
 
 // setupUserRoutes 设置用户路由（需要用户认证）
-func setupUserRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler, patientHandler *handler.PatientHandler, tokenHandler *handler.TokenHandler, appointmentHandler *handler.AppointmentHandler) {
+func setupUserRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler, patientHandler *handler.PatientHandler, tokenHandler *handler.TokenHandler, appointmentHandler *handler.AppointmentHandler, medicalRecordHandler *handler.MedicalRecordHandler) {
 	user := rg.Group("")
 	user.Use(middleware.JWTAuth())
 	{
@@ -110,13 +112,13 @@ func setupUserRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler, pati
 		user.POST("/appointments/:id/checkin", appointmentHandler.Checkin)
 
 		// 就诊记录
-		user.GET("/records", placeholder("获取就诊记录列表"))
-		user.GET("/records/:id", placeholder("获取就诊记录详情"))
+		user.GET("/records", medicalRecordHandler.List)
+		user.GET("/records/:id", medicalRecordHandler.GetByID)
 	}
 }
 
 // setupAdminRoutes 设置管理后台路由（需要管理员认证）
-func setupAdminRoutes(rg *gin.RouterGroup, adminHandler *handler.AdminHandler, deptHandler *handler.DepartmentHandler, doctorHandler *handler.DoctorHandler, scheduleHandler *handler.ScheduleHandler, uploadHandler *handler.UploadHandler, appointmentHandler *handler.AppointmentHandler) {
+func setupAdminRoutes(rg *gin.RouterGroup, adminHandler *handler.AdminHandler, deptHandler *handler.DepartmentHandler, doctorHandler *handler.DoctorHandler, scheduleHandler *handler.ScheduleHandler, uploadHandler *handler.UploadHandler, appointmentHandler *handler.AppointmentHandler, patientHandler *handler.PatientHandler, statisticsHandler *handler.StatisticsHandler) {
 	// 管理员登录（公开）
 	rg.POST("/admin/login", adminHandler.Login)
 
@@ -128,16 +130,16 @@ func setupAdminRoutes(rg *gin.RouterGroup, adminHandler *handler.AdminHandler, d
 		admin.PUT("/password", adminHandler.ChangePassword)
 
 		// 仪表盘
-		admin.GET("/dashboard", placeholder("仪表盘数据"))
+		admin.GET("/dashboard", statisticsHandler.GetDashboard)
 
 		// 预约管理
 		admin.GET("/appointments", appointmentHandler.ListAdmin)
-		admin.PUT("/appointments/:id", placeholder("更新预约状态"))
-		admin.GET("/appointments/export", placeholder("导出预约数据"))
+		admin.PUT("/appointments/:id", appointmentHandler.UpdateStatus)
+		admin.GET("/appointments/export", appointmentHandler.ExportAppointments)
 
 		// 患者管理
-		admin.GET("/patients", placeholder("患者列表"))
-		admin.GET("/patients/:id", placeholder("患者详情"))
+		admin.GET("/patients", patientHandler.ListAdmin)
+		admin.GET("/patients/:id", patientHandler.GetByIDAdmin)
 
 		// 科室管理
 		admin.GET("/departments", deptHandler.List)
@@ -166,7 +168,7 @@ func setupAdminRoutes(rg *gin.RouterGroup, adminHandler *handler.AdminHandler, d
 		admin.DELETE("/schedules/:id", scheduleHandler.Delete)
 
 		// 数据统计
-		admin.GET("/statistics", placeholder("数据统计"))
+		admin.GET("/statistics", statisticsHandler.GetStatistics)
 	}
 }
 

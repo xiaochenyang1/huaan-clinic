@@ -305,3 +305,71 @@ func (s *AppointmentService) List(req *ListAdminAppointmentRequest) ([]model.App
 
 	return voList, total, nil
 }
+
+// UpdateAppointmentStatusRequest 更新预约状态请求
+type UpdateAppointmentStatusRequest struct {
+	Status string `json:"status" binding:"required,oneof=pending checked_in completed cancelled missed"`
+	Remark string `json:"remark" binding:"max=256"`
+}
+
+// UpdateStatus 更新预约状态（管理后台）
+func (s *AppointmentService) UpdateStatus(appointmentID int64, req *UpdateAppointmentStatusRequest) error {
+	// 查询预约
+	appointment, err := s.repo.GetByID(appointmentID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errorcode.New(errorcode.ErrAppointmentNotFound)
+		}
+		return errorcode.New(errorcode.ErrDatabase)
+	}
+
+	// 检查状态转换是否合法
+	if !isValidStatusTransition(appointment.Status, req.Status) {
+		return errorcode.NewWithMessage(errorcode.ErrInvalidParams, "无效的状态转换")
+	}
+
+	// 更新状态
+	updates := map[string]interface{}{
+		"remark": req.Remark,
+	}
+
+	// 根据不同状态设置对应的时间字段
+	now := time.Now()
+	switch req.Status {
+	case model.AppointmentStatusCheckedIn:
+		updates["checked_in_at"] = now
+	case model.AppointmentStatusCompleted:
+		updates["completed_at"] = now
+	case model.AppointmentStatusCancelled:
+		updates["cancelled_at"] = now
+	case model.AppointmentStatusMissed:
+		// 爽约状态无需设置特定时间
+	}
+
+	return s.repo.UpdateStatus(appointmentID, req.Status, updates)
+}
+
+// isValidStatusTransition 检查状态转换是否合法
+func isValidStatusTransition(currentStatus, newStatus string) bool {
+	// 定义允许的状态转换
+	transitions := map[string][]string{
+		model.AppointmentStatusPending:    {model.AppointmentStatusCheckedIn, model.AppointmentStatusCancelled, model.AppointmentStatusMissed},
+		model.AppointmentStatusCheckedIn:  {model.AppointmentStatusCompleted, model.AppointmentStatusCancelled},
+		model.AppointmentStatusCompleted:  {}, // 已完成不能转换
+		model.AppointmentStatusCancelled:  {}, // 已取消不能转换
+		model.AppointmentStatusMissed:     {}, // 已爽约不能转换
+	}
+
+	allowedStatuses, exists := transitions[currentStatus]
+	if !exists {
+		return false
+	}
+
+	for _, status := range allowedStatuses {
+		if status == newStatus {
+			return true
+		}
+	}
+
+	return false
+}

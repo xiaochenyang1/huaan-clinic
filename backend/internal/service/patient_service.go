@@ -252,3 +252,37 @@ func (s *PatientService) SetDefault(userID, patientID int64) error {
 
 	return s.repo.SetDefault(userID, patientID)
 }
+
+// ListAdminPatientsRequest 管理后台患者列表查询请求
+type ListAdminPatientsRequest struct {
+	Page     int    `form:"page" binding:"required,min=1"`
+	PageSize int    `form:"page_size" binding:"required,min=1,max=100"`
+	Keyword  string `form:"keyword"`
+}
+
+// ListAdmin 分页查询患者列表（管理后台）
+func (s *PatientService) ListAdmin(req *ListAdminPatientsRequest) ([]model.PatientVO, int64, error) {
+	patients, total, err := s.repo.List(req.Page, req.PageSize, req.Keyword)
+	if err != nil {
+		return nil, 0, errorcode.New(errorcode.ErrDatabase)
+	}
+
+	voList := make([]model.PatientVO, len(patients))
+	for i, patient := range patients {
+		voList[i] = *patient.ToVO()
+	}
+
+	return voList, total, nil
+}
+
+// GetByIDAdmin 获取患者详情（管理后台，无需权限校验）
+func (s *PatientService) GetByIDAdmin(patientID int64) (*model.PatientVO, error) {
+	patient, err := s.repo.GetByID(patientID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorcode.New(errorcode.ErrPatientNotFound)
+		}
+		return nil, errorcode.New(errorcode.ErrDatabase)
+	}
+	return patient.ToVO(), nil
+}

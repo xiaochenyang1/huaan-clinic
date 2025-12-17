@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -220,4 +221,96 @@ func (h *AppointmentHandler) ListAdmin(c *gin.Context) {
 	}
 
 	response.SuccessWithPage(c, appointments, total, req.Page, req.PageSize)
+}
+
+// UpdateStatus 更新预约状态（管理后台）
+// @Summary 更新预约状态（管理后台）
+// @Description 管理员更新预约状态
+// @Tags 预约管理
+// @Accept json
+// @Produce json
+// @Security BearerAdmin
+// @Param id path int true "预约ID"
+// @Param request body service.UpdateAppointmentStatusRequest true "状态信息"
+// @Success 200 {object} response.Response
+// @Router /api/admin/appointments/{id} [put]
+func (h *AppointmentHandler) UpdateStatus(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
+		response.FailWithMessage(c, errorcode.ErrInvalidParams, "预约ID格式错误")
+		return
+	}
+
+	var req service.UpdateAppointmentStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, errorcode.ErrBindJSON)
+		return
+	}
+
+	if err := h.service.UpdateStatus(id, &req); err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	response.SuccessWithMessage(c, "状态更新成功", nil)
+}
+
+// ExportAppointments 导出预约数据（管理后台）
+// @Summary 导出预约数据（管理后台）
+// @Description 导出预约数据为CSV文件
+// @Tags 预约管理
+// @Accept json
+// @Produce text/csv
+// @Security BearerAdmin
+// @Param start_date query string false "开始日期（YYYY-MM-DD）"
+// @Param end_date query string false "结束日期（YYYY-MM-DD）"
+// @Param status query string false "预约状态"
+// @Success 200 {file} file "CSV文件"
+// @Router /api/admin/appointments/export [get]
+func (h *AppointmentHandler) ExportAppointments(c *gin.Context) {
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+	status := c.Query("status")
+
+	// 构造查询请求（不分页，获取所有数据）
+	req := service.ListAdminAppointmentRequest{
+		Page:      1,
+		PageSize:  10000, // 设置一个较大的值
+		StartDate: startDate,
+		EndDate:   endDate,
+		Status:    func() *string { if status != "" { return &status }; return nil }(),
+	}
+
+	appointments, _, err := h.service.List(&req)
+	if err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	// 设置响应头
+	c.Writer.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	c.Writer.Header().Set("Content-Disposition", "attachment; filename=appointments.csv")
+
+	// 写入BOM头（让Excel正确识别UTF-8）
+	c.Writer.Write([]byte{0xEF, 0xBB, 0xBF})
+
+	// 写入CSV标题
+	c.Writer.Write([]byte("预约编号,患者姓名,医生姓名,科室名称,预约日期,时段,号序,状态,创建时间\n"))
+
+	// 写入数据
+	for _, apt := range appointments {
+		line := fmt.Sprintf("%s,%s,%s,%s,%s,%s,%d,%s,%s\n",
+			apt.AppointmentNo,
+			apt.PatientName,
+			apt.DoctorName,
+			apt.DepartmentName,
+			apt.AppointmentDate,
+			apt.PeriodName,
+			apt.SlotNumber,
+			apt.StatusName,
+			apt.CreatedAt,
+		)
+		c.Writer.Write([]byte(line))
+	}
 }

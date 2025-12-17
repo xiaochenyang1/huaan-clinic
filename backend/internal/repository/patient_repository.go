@@ -125,3 +125,30 @@ func (r *PatientRepository) HasAppointments(id int64) (bool, error) {
 		Count(&count).Error
 	return count > 0, err
 }
+
+// List 分页查询患者列表（管理后台）
+func (r *PatientRepository) List(page, pageSize int, keyword string) ([]model.Patient, int64, error) {
+	var patients []model.Patient
+	var total int64
+
+	query := r.db.Model(&model.Patient{})
+
+	// 关键词搜索（姓名、手机号）
+	if keyword != "" {
+		query = query.Where("name LIKE ? OR phone LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+	}
+
+	// 统计总数
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询
+	offset := (page - 1) * pageSize
+	err := query.Order("created_at DESC").
+		Offset(offset).
+		Limit(pageSize).
+		Find(&patients).Error
+
+	return patients, total, err
+}

@@ -20,6 +20,11 @@ func NewTokenService() *TokenService {
 
 // GenerateIdempotentToken 生成幂等Token
 func (s *TokenService) GenerateIdempotentToken(userID int64) (string, int64, error) {
+	// 检查Redis是否可用
+	if !redis.IsEnabled() {
+		return "", 0, errorcode.NewWithMessage(errorcode.ErrInternalServer, "Redis服务不可用，幂等Token功能暂时无法使用")
+	}
+
 	// 生成随机Token
 	token := utils.GenerateShortUUID()
 
@@ -41,6 +46,13 @@ func (s *TokenService) GenerateIdempotentToken(userID int64) (string, int64, err
 
 // ValidateAndConsumeIdempotentToken 验证并消费幂等Token
 func (s *TokenService) ValidateAndConsumeIdempotentToken(userID int64, token string) error {
+	// 检查Redis是否可用
+	if !redis.IsEnabled() {
+		// Redis不可用时，降级处理：跳过幂等检查（允许重复提交风险）
+		// 生产环境建议记录日志或采取其他措施
+		return nil
+	}
+
 	if token == "" {
 		return errorcode.NewWithMessage(errorcode.ErrInvalidParams, "幂等Token不能为空")
 	}

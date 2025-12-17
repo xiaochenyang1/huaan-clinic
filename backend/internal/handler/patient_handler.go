@@ -181,3 +181,57 @@ func (h *PatientHandler) Delete(c *gin.Context) {
 
 	response.SuccessWithMessage(c, "删除成功", nil)
 }
+
+// ListAdmin 查询患者列表（管理后台）
+// @Summary 查询患者列表（管理后台）
+// @Description 分页查询所有患者，支持关键词搜索
+// @Tags 患者管理（后台）
+// @Accept json
+// @Produce json
+// @Security BearerAdmin
+// @Param page query int true "页码" minimum(1)
+// @Param page_size query int true "每页数量" minimum(1) maximum(100)
+// @Param keyword query string false "搜索关键词（姓名、手机号）"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]model.PatientVO}}
+// @Router /api/admin/patients [get]
+func (h *PatientHandler) ListAdmin(c *gin.Context) {
+	var req service.ListAdminPatientsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.Fail(c, errorcode.ErrBindJSON)
+		return
+	}
+
+	patients, total, err := h.service.ListAdmin(&req)
+	if err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	response.SuccessWithPage(c, patients, total, req.Page, req.PageSize)
+}
+
+// GetByIDAdmin 获取患者详情（管理后台）
+// @Summary 获取患者详情（管理后台）
+// @Description 获取指定患者的详细信息
+// @Tags 患者管理（后台）
+// @Accept json
+// @Produce json
+// @Security BearerAdmin
+// @Param id path int true "患者ID"
+// @Success 200 {object} response.Response{data=model.PatientVO}
+// @Router /api/admin/patients/{id} [get]
+func (h *PatientHandler) GetByIDAdmin(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		response.Fail(c, errorcode.ErrInvalidIDFormat)
+		return
+	}
+
+	patient, err := h.service.GetByIDAdmin(id)
+	if err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	response.Success(c, patient)
+}

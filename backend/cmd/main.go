@@ -14,6 +14,7 @@ import (
 	"huaan-medical/internal/middleware"
 	"huaan-medical/internal/model"
 	"huaan-medical/internal/router"
+	"huaan-medical/internal/scheduler"
 	"huaan-medical/pkg/config"
 	"huaan-medical/pkg/database"
 	"huaan-medical/pkg/jwt"
@@ -91,6 +92,11 @@ func main() {
 	// 初始化限流器
 	middleware.InitRateLimiter(&cfg.RateLimit)
 	logger.Info("限流器初始化成功")
+
+	// 初始化定时任务
+	scheduler.Init()
+	defer scheduler.Stop()
+	logger.Info("定时任务初始化成功")
 
 	// 设置路由
 	r := router.Setup(cfg.Server.Mode)

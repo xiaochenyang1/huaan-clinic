@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 
 	"huaan-medical/internal/middleware"
 	"huaan-medical/internal/service"
 	"huaan-medical/pkg/errorcode"
+	"huaan-medical/pkg/jwt"
 	"huaan-medical/pkg/response"
 )
 
@@ -101,4 +104,35 @@ func (h *UserHandler) UpdateInfo(c *gin.Context) {
 	}
 
 	response.Success(c, user)
+}
+
+// RefreshTokenRequest 刷新Token请求
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+// RefreshToken 刷新Token
+// @Summary 刷新Token
+// @Description 使用refresh_token刷新access_token
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Param request body RefreshTokenRequest true "Refresh Token"
+// @Success 200 {object} response.Response{data=jwt.TokenPair}
+// @Router /api/auth/refresh [post]
+func (h *UserHandler) RefreshToken(c *gin.Context) {
+	var req RefreshTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, errorcode.ErrBindJSON)
+		return
+	}
+
+	// 刷新Token
+	tokenPair, err := jwt.RefreshAccessToken(req.RefreshToken)
+	if err != nil {
+		response.FailWithMessage(c, errorcode.ErrUnauthorized, err.Error())
+		return
+	}
+
+	response.Success(c, tokenPair)
 }
