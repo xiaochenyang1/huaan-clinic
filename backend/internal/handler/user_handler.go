@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"strings"
-
 	"github.com/gin-gonic/gin"
 
 	"huaan-medical/internal/middleware"

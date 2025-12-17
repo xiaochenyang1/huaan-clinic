@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"huaan-medical/internal/service"
-	"huaan-medical/pkg/errorcode"
 	"huaan-medical/pkg/response"
 )
 

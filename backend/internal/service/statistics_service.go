@@ -5,7 +5,6 @@ import (
 
 	"huaan-medical/internal/model"
 	"huaan-medical/pkg/database"
-	"huaan-medical/pkg/errorcode"
 )
 
 // StatisticsService 统计服务
