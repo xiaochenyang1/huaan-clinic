@@ -269,7 +269,12 @@ func (s *PatientService) ListAdmin(req *ListAdminPatientsRequest) ([]model.Patie
 
 	voList := make([]model.PatientVO, len(patients))
 	for i, patient := range patients {
-		voList[i] = *patient.ToVO()
+		vo := patient.ToVO()
+		// 填充用户的最后登录IP
+		if patient.User != nil {
+			vo.LastLoginIP = patient.User.LastLoginIP
+		}
+		voList[i] = *vo
 	}
 
 	return voList, total, nil

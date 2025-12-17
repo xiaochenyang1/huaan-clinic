@@ -143,9 +143,10 @@ func (r *PatientRepository) List(page, pageSize int, keyword string) ([]model.Pa
 		return nil, 0, err
 	}
 
-	// 分页查询
+	// 分页查询，预加载用户信息以获取IP
 	offset := (page - 1) * pageSize
-	err := query.Order("created_at DESC").
+	err := query.Preload("User").
+		Order("created_at DESC").
 		Offset(offset).
 		Limit(pageSize).
 		Find(&patients).Error

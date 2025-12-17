@@ -2,13 +2,17 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 
 	"huaan-medical/internal/model"
 	"huaan-medical/internal/repository"
+	"huaan-medical/pkg/config"
 	"huaan-medical/pkg/errorcode"
+	"huaan-medical/pkg/jwt"
 	"huaan-medical/pkg/utils"
+	"huaan-medical/pkg/wechat"
 )
 
 // UserService 用户服务
@@ -45,17 +49,76 @@ type UpdateUserInfoRequest struct {
 }
 
 // WeChatLogin 微信登录
-// TODO: 需要配置微信小程序 AppID 和 AppSecret
-// TODO: 调用微信API: https://api.weixin.qq.com/sns/jscode2session
 func (s *UserService) WeChatLogin(req *WeChatLoginRequest, clientIP string) (*WeChatLoginResponse, error) {
-	// 这里需要实现：
-	// 1. 调用微信API，使用code换取openid
-	// 2. 根据openid查询或创建用户
-	// 3. 生成JWT Token
-	// 4. 更新登录信息
+	// 获取配置
+	cfg, err := config.Load("config.yaml")
+	if err != nil || cfg.WeChat.AppID == "" || cfg.WeChat.AppSecret == "" {
+		return nil, errorcode.NewWithMessage(errorcode.ErrInternalServer, "微信登录功能未配置，请检查config.yaml中的wechat配置")
+	}
 
-	// 暂时返回错误，提示需要配置
-	return nil, errorcode.NewWithMessage(errorcode.ErrInternalServer, "微信登录功能需要配置小程序AppID和AppSecret")
+	// 1. 调用微信API，使用code换取openid
+	wechatClient := wechat.NewClient(cfg.WeChat.AppID, cfg.WeChat.AppSecret)
+	session, err := wechatClient.Code2Session(req.Code)
+	if err != nil {
+		return nil, errorcode.NewWithMessage(errorcode.ErrInternalServer, "微信登录失败: "+err.Error())
+	}
+
+	if session.OpenID == "" {
+		return nil, errorcode.NewWithMessage(errorcode.ErrInternalServer, "获取微信OpenID失败")
+	}
+
+	// 2. 根据openid查询或创建用户
+	user, err := s.userRepo.GetByOpenID(session.OpenID)
+	isNew := false
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// 创建新用户
+			user = &model.User{
+				OpenID:  session.OpenID,
+				UnionID: session.UnionID,
+				Status:  model.StatusEnabled,
+			}
+			if err := s.userRepo.Create(user); err != nil {
+				return nil, errorcode.New(errorcode.ErrDatabase)
+			}
+			isNew = true
+		} else {
+			return nil, errorcode.New(errorcode.ErrDatabase)
+		}
+	}
+
+	// 检查用户状态
+	if user.Status == model.StatusDisabled {
+		return nil, errorcode.New(errorcode.ErrAccountDisabled)
+	}
+
+	// 检查是否被封禁
+	if user.IsBlocked() {
+		return nil, errorcode.NewWithMessage(
+			errorcode.ErrAccountBlocked,
+			"您的账号因多次爽约已被暂时封禁，请联系客服",
+		)
+	}
+
+	// 3. 生成JWT Token
+	tokenPair, err := jwt.GenerateTokenPair(user.ID, user.OpenID)
+	if err != nil {
+		return nil, errorcode.New(errorcode.ErrInternalServer)
+	}
+
+	// 4. 更新登录信息（记录IP地址和登录时间）
+	_ = s.userRepo.UpdateLoginInfo(user.ID, clientIP)
+
+	// 重新查询用户以获取最新信息
+	user, _ = s.userRepo.GetByID(user.ID)
+
+	return &WeChatLoginResponse{
+		Token:     tokenPair.AccessToken,
+		ExpiresIn: int64(time.Until(tokenPair.AccessExpireAt).Seconds()),
+		User:      user.ToVO(),
+		IsNew:     isNew,
+	}, nil
 }
 
 // GetUserInfo 获取用户信息

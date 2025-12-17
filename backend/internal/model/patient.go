@@ -25,8 +25,8 @@ func (Patient) TableName() string {
 type PatientVO struct {
 	ID           int64  `json:"id"`
 	Name         string `json:"name"`
-	IDCard       string `json:"id_card"`        // 脱敏后的身份证号
-	Phone        string `json:"phone"`          // 脱敏后的手机号
+	IDCard       string `json:"id_card"` // 脱敏后的身份证号
+	Phone        string `json:"phone"`   // 脱敏后的手机号
 	Gender       int    `json:"gender"`
 	GenderName   string `json:"gender_name"`
 	BirthDate    string `json:"birth_date"`
@@ -34,6 +34,7 @@ type PatientVO struct {
 	Relation     string `json:"relation"`
 	RelationName string `json:"relation_name"`
 	IsDefault    int    `json:"is_default"`
+	LastLoginIP  string `json:"last_login_ip,omitempty"` // 用户最后登录IP
 }
 
 // ToVO 转换为视图对象
