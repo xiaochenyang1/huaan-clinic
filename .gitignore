@@ -1,0 +1,76 @@
+# =============================================
+# 华安医疗预约系统 - Git忽略配置
+# =============================================
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 日志
+logs/
+*.log
+
+# 临时文件
+tmp/
+temp/
+
+# =============================================
+# 后端 (Go)
+# =============================================
+
+# 二进制文件
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+backend/huaan-medical
+
+# 测试二进制
+*.test
+
+# 输出目录
+backend/bin/
+backend/dist/
+
+# 依赖
+backend/vendor/
+
+# 敏感配置
+backend/config.yaml
+backend/.env
+backend/.env.*
+
+# 上传目录
+backend/uploads/
+
+# 调试文件
+backend/debug
+backend/__debug_bin
+backend/.air.toml
+
+# =============================================
+# 小程序 (uni-app)
+# =============================================
+
+miniprogram/node_modules/
+miniprogram/dist/
+miniprogram/unpackage/
+miniprogram/.hbuilderx/
+
+# =============================================
+# 后台管理 (React)
+# =============================================
+
+admin/node_modules/
+admin/dist/
+admin/build/
+admin/.env
+admin/.env.*

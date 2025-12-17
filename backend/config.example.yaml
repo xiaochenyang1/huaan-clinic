@@ -1,0 +1,80 @@
+# 华安医疗预约系统 - 配置文件示例
+# 复制此文件为 config.yaml 并修改相应配置
+
+# 服务器配置
+server:
+  port: 8080
+  mode: debug  # debug, release, test
+  read_timeout: 10s
+  write_timeout: 10s
+
+# 数据库配置
+database:
+  host: localhost
+  port: 3306
+  username: root
+  password: your_password_here  # 请修改为实际密码
+  dbname: huaan_medical
+  charset: utf8mb4
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 1h
+
+# Redis配置
+redis:
+  host: localhost
+  port: 6379
+  password: ""  # 如有密码请填写
+  db: 0
+  pool_size: 100
+
+# JWT配置
+jwt:
+  secret: please-change-this-secret-in-production  # 生产环境请修改
+  access_token_expire: 2h
+  refresh_token_expire: 168h  # 7天
+
+# 微信小程序配置
+wechat:
+  app_id: your_app_id_here      # 请填写实际AppID
+  app_secret: your_app_secret_here  # 请填写实际AppSecret
+
+# 日志配置
+log:
+  level: info  # debug, info, warn, error
+  filename: logs/app.log
+  max_size: 100     # MB
+  max_backups: 30
+  max_age: 7        # 天
+  compress: true
+
+# 业务规则配置
+business:
+  # 预约规则
+  appointment:
+    advance_days: 7           # 可预约未来天数
+    min_advance_days: 1       # 最少提前天数（不可当天预约）
+    daily_limit: 10           # 每人每日预约上限
+    cancel_deadline_days: 1   # 取消截止时间（就诊前N天）
+    monthly_cancel_limit: 5   # 每月取消次数上限
+
+  # 号源规则
+  schedule:
+    morning_start: "08:00"
+    morning_end: "12:00"
+    afternoon_start: "14:00"
+    afternoon_end: "17:30"
+    slot_duration: 15         # 每个号就诊时长（分钟）
+    morning_slots: 16         # 上午号源数
+    afternoon_slots: 14       # 下午号源数
+
+  # 签到规则
+  checkin:
+    early_minutes: 30         # 可提前签到分钟数
+    late_minutes: 15          # 迟到多少分钟后自动作废
+
+# 限流配置
+rate_limit:
+  enabled: true
+  requests_per_second: 100
+  burst: 200
