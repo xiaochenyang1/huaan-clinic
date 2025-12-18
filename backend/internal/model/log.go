@@ -61,6 +61,7 @@ const (
 const (
 	LoginTypeWeChat   = "wechat"   // 微信登录
 	LoginTypePassword = "password" // 密码登录
+	LoginTypePhone    = "phone"    // 手机号验证码登录
 )
 
 // 登录状态常量

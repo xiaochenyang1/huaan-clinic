@@ -66,6 +66,30 @@ func (r *UserRepository) UpdateLoginInfo(id int64, ip string) error {
 		}).Error
 }
 
+// GetByUsername 根据用户名查询用户
+func (r *UserRepository) GetByUsername(username string) (*model.User, error) {
+	var user model.User
+	err := r.db.Where("username = ?", username).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+// ExistsUsername 检查用户名是否已存在
+func (r *UserRepository) ExistsUsername(username string) (bool, error) {
+	var count int64
+	err := r.db.Model(&model.User{}).Where("username = ?", username).Count(&count).Error
+	return count > 0, err
+}
+
+// ExistsPhone 检查手机号是否已存在
+func (r *UserRepository) ExistsPhone(phone string) (bool, error) {
+	var count int64
+	err := r.db.Model(&model.User{}).Where("phone = ?", phone).Count(&count).Error
+	return count > 0, err
+}
+
 // IncrementMissedCount 增加爽约次数
 func (r *UserRepository) IncrementMissedCount(id int64) error {
 	return r.db.Model(&model.User{}).Where("id = ?", id).

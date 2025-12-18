@@ -84,6 +84,14 @@ func ValidatePhone(phone string) bool {
 	return matched
 }
 
+// ValidateUsername 验证用户名格式
+// 规则：4-20字符，只能包含字母、数字、下划线，必须以字母开头
+func ValidateUsername(username string) bool {
+	pattern := `^[a-zA-Z][a-zA-Z0-9_]{3,19}$`
+	matched, _ := regexp.MatchString(pattern, username)
+	return matched
+}
+
 // ValidateIDCard 验证身份证号格式（简单校验）
 func ValidateIDCard(idCard string) bool {
 	// 18位身份证号

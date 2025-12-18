@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"time"
 
 	"gorm.io/gorm"
 
@@ -11,6 +10,7 @@ import (
 	"huaan-medical/pkg/config"
 	"huaan-medical/pkg/errorcode"
 	"huaan-medical/pkg/jwt"
+	"huaan-medical/pkg/sms"
 	"huaan-medical/pkg/utils"
 	"huaan-medical/pkg/wechat"
 )
@@ -96,7 +96,7 @@ func (s *UserService) WeChatLogin(req *WeChatLoginRequest, clientIP string) (*We
 	// 检查是否被封禁
 	if user.IsBlocked() {
 		return nil, errorcode.NewWithMessage(
-			errorcode.ErrAccountBlocked,
+			errorcode.ErrUserBlocked,
 			"您的账号因多次爽约已被暂时封禁，请联系客服",
 		)
 	}
@@ -115,7 +115,7 @@ func (s *UserService) WeChatLogin(req *WeChatLoginRequest, clientIP string) (*We
 
 	return &WeChatLoginResponse{
 		Token:     tokenPair.AccessToken,
-		ExpiresIn: int64(time.Until(tokenPair.AccessExpireAt).Seconds()),
+		ExpiresIn: tokenPair.ExpiresIn,
 		User:      user.ToVO(),
 		IsNew:     isNew,
 	}, nil
@@ -191,4 +191,211 @@ func (s *UserService) UpdateUserInfo(userID int64, req *UpdateUserInfoRequest) (
 	}
 
 	return user.ToVO(), nil
+}
+
+// RegisterRequest 注册请求
+type RegisterRequest struct {
+	Username        string `json:"username" binding:"required,min=4,max=20"`
+	Password        string `json:"password" binding:"required,min=6,max=20"`
+	ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=Password"`
+	Nickname        string `json:"nickname" binding:"max=64"`
+}
+
+// PasswordLoginRequest 密码登录请求
+type PasswordLoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+// PhoneLoginRequest 手机号登录请求
+type PhoneLoginRequest struct {
+	Phone string `json:"phone" binding:"required,len=11"`
+	Code  string `json:"code" binding:"required,len=6"`
+}
+
+// LoginResponse 通用登录响应
+type UserLoginResponse struct {
+	Token        string        `json:"token"`
+	RefreshToken string        `json:"refresh_token"`
+	ExpiresIn    int64         `json:"expires_in"`
+	User         *model.UserVO `json:"user"`
+	IsNew        bool          `json:"is_new"` // 是否新用户
+}
+
+// Register 用户名注册
+func (s *UserService) Register(req *RegisterRequest, clientIP string) (*UserLoginResponse, error) {
+	// 1. 验证用户名格式（字母数字下划线）
+	if !utils.ValidateUsername(req.Username) {
+		return nil, errorcode.New(errorcode.ErrUsernameInvalid)
+	}
+
+	// 2. 检查用户名是否已存在
+	exists, err := s.userRepo.ExistsUsername(req.Username)
+	if err != nil {
+		return nil, errorcode.New(errorcode.ErrDatabase)
+	}
+	if exists {
+		return nil, errorcode.New(errorcode.ErrUsernameExists)
+	}
+
+	// 3. 加密密码
+	hashedPassword, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return nil, errorcode.New(errorcode.ErrInternalServer)
+	}
+
+	// 4. 创建用户
+	user := &model.User{
+		Username:  req.Username,
+		Password:  hashedPassword,
+		Nickname:  req.Nickname,
+		LoginType: model.LoginTypePassword,
+		Status:    model.StatusEnabled,
+	}
+	if user.Nickname == "" {
+		user.Nickname = req.Username
+	}
+
+	if err := s.userRepo.Create(user); err != nil {
+		return nil, errorcode.New(errorcode.ErrDatabase)
+	}
+
+	// 5. 生成Token
+	tokenPair, err := jwt.GenerateTokenPair(user.ID, "")
+	if err != nil {
+		return nil, errorcode.New(errorcode.ErrInternalServer)
+	}
+
+	// 6. 更新登录信息
+	_ = s.userRepo.UpdateLoginInfo(user.ID, clientIP)
+
+	// 重新查询用户以获取最新信息
+	user, _ = s.userRepo.GetByID(user.ID)
+
+	return &UserLoginResponse{
+		Token:        tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+		ExpiresIn:    tokenPair.ExpiresIn,
+		User:         user.ToVO(),
+		IsNew:        true,
+	}, nil
+}
+
+// PasswordLogin 密码登录
+func (s *UserService) PasswordLogin(req *PasswordLoginRequest, clientIP string) (*UserLoginResponse, error) {
+	// 1. 根据用户名查询用户
+	user, err := s.userRepo.GetByUsername(req.Username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorcode.New(errorcode.ErrPasswordWrong)
+		}
+		return nil, errorcode.New(errorcode.ErrDatabase)
+	}
+
+	// 2. 验证密码
+	if !utils.CheckPassword(req.Password, user.Password) {
+		return nil, errorcode.New(errorcode.ErrPasswordWrong)
+	}
+
+	// 3. 检查账号状态
+	if user.Status == model.StatusDisabled {
+		return nil, errorcode.New(errorcode.ErrAccountDisabled)
+	}
+
+	// 4. 检查封禁状态
+	if user.IsBlocked() {
+		return nil, errorcode.NewWithMessage(
+			errorcode.ErrUserBlocked,
+			"您的账号因多次爽约已被暂时封禁，请联系客服",
+		)
+	}
+
+	// 5. 生成Token
+	tokenPair, err := jwt.GenerateTokenPair(user.ID, "")
+	if err != nil {
+		return nil, errorcode.New(errorcode.ErrInternalServer)
+	}
+
+	// 6. 更新登录信息
+	_ = s.userRepo.UpdateLoginInfo(user.ID, clientIP)
+
+	// 重新查询用户以获取最新信息
+	user, _ = s.userRepo.GetByID(user.ID)
+
+	return &UserLoginResponse{
+		Token:        tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+		ExpiresIn:    tokenPair.ExpiresIn,
+		User:         user.ToVO(),
+		IsNew:        false,
+	}, nil
+}
+
+// PhoneLogin 手机号验证码登录
+func (s *UserService) PhoneLogin(req *PhoneLoginRequest, clientIP string) (*UserLoginResponse, error) {
+	// 1. 验证手机号格式
+	if !utils.ValidatePhone(req.Phone) {
+		return nil, errorcode.NewWithMessage(errorcode.ErrInvalidParams, "手机号格式错误")
+	}
+
+	// 2. 验证验证码
+	smsService := sms.GetService()
+	if err := smsService.VerifyCode(req.Phone, req.Code); err != nil {
+		return nil, errorcode.NewWithMessage(errorcode.ErrSMSCodeInvalid, err.Error())
+	}
+
+	// 3. 查询或创建用户
+	user, err := s.userRepo.GetByPhone(req.Phone)
+	isNew := false
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// 手机号不存在，自动注册
+			user = &model.User{
+				Phone:     req.Phone,
+				Nickname:  utils.MaskPhone(req.Phone),
+				LoginType: model.LoginTypePhone,
+				Status:    model.StatusEnabled,
+			}
+			if err := s.userRepo.Create(user); err != nil {
+				return nil, errorcode.New(errorcode.ErrDatabase)
+			}
+			isNew = true
+		} else {
+			return nil, errorcode.New(errorcode.ErrDatabase)
+		}
+	}
+
+	// 4. 检查账号状态
+	if user.Status == model.StatusDisabled {
+		return nil, errorcode.New(errorcode.ErrAccountDisabled)
+	}
+
+	// 5. 检查封禁状态
+	if user.IsBlocked() {
+		return nil, errorcode.NewWithMessage(
+			errorcode.ErrUserBlocked,
+			"您的账号因多次爽约已被暂时封禁，请联系客服",
+		)
+	}
+
+	// 6. 生成Token
+	tokenPair, err := jwt.GenerateTokenPair(user.ID, "")
+	if err != nil {
+		return nil, errorcode.New(errorcode.ErrInternalServer)
+	}
+
+	// 7. 更新登录信息
+	_ = s.userRepo.UpdateLoginInfo(user.ID, clientIP)
+
+	// 重新查询用户以获取最新信息
+	user, _ = s.userRepo.GetByID(user.ID)
+
+	return &UserLoginResponse{
+		Token:        tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+		ExpiresIn:    tokenPair.ExpiresIn,
+		User:         user.ToVO(),
+		IsNew:        isNew,
+	}, nil
 }

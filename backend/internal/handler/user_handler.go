@@ -134,3 +134,78 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 
 	response.Success(c, tokenPair)
 }
+
+// Register 用户注册
+// @Summary 用户注册
+// @Description 用户名密码注册
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Param request body service.RegisterRequest true "注册信息"
+// @Success 200 {object} response.Response{data=service.UserLoginResponse}
+// @Router /api/user/register [post]
+func (h *UserHandler) Register(c *gin.Context) {
+	var req service.RegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, errorcode.ErrBindJSON)
+		return
+	}
+
+	result, err := h.service.Register(&req, c.ClientIP())
+	if err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	response.Success(c, result)
+}
+
+// PasswordLogin 密码登录
+// @Summary 密码登录
+// @Description 用户名密码登录
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Param request body service.PasswordLoginRequest true "登录信息"
+// @Success 200 {object} response.Response{data=service.UserLoginResponse}
+// @Router /api/user/login/password [post]
+func (h *UserHandler) PasswordLogin(c *gin.Context) {
+	var req service.PasswordLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, errorcode.ErrBindJSON)
+		return
+	}
+
+	result, err := h.service.PasswordLogin(&req, c.ClientIP())
+	if err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	response.Success(c, result)
+}
+
+// PhoneLogin 手机号登录
+// @Summary 手机号登录
+// @Description 手机号验证码登录
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Param request body service.PhoneLoginRequest true "登录信息"
+// @Success 200 {object} response.Response{data=service.UserLoginResponse}
+// @Router /api/user/login/phone [post]
+func (h *UserHandler) PhoneLogin(c *gin.Context) {
+	var req service.PhoneLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, errorcode.ErrBindJSON)
+		return
+	}
+
+	result, err := h.service.PhoneLogin(&req, c.ClientIP())
+	if err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	response.Success(c, result)
+}

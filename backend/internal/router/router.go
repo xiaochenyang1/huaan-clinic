@@ -48,12 +48,13 @@ func Setup(mode string) *gin.Engine {
 	appointmentHandler := handler.NewAppointmentHandler()
 	medicalRecordHandler := handler.NewMedicalRecordHandler()
 	statisticsHandler := handler.NewStatisticsHandler()
+	smsHandler := handler.NewSMSHandler()
 
 	// API路由组
 	api := r.Group("/api")
 	{
 		// 公开接口（无需认证）
-		setupPublicRoutes(api, deptHandler, doctorHandler, scheduleHandler, userHandler)
+		setupPublicRoutes(api, deptHandler, doctorHandler, scheduleHandler, userHandler, smsHandler)
 
 		// 用户接口（需要用户认证）
 		setupUserRoutes(api, userHandler, patientHandler, tokenHandler, appointmentHandler, medicalRecordHandler)
@@ -66,9 +67,17 @@ func Setup(mode string) *gin.Engine {
 }
 
 // setupPublicRoutes 设置公开路由（无需认证）
-func setupPublicRoutes(rg *gin.RouterGroup, deptHandler *handler.DepartmentHandler, doctorHandler *handler.DoctorHandler, scheduleHandler *handler.ScheduleHandler, userHandler *handler.UserHandler) {
-	// 用户登录
-	rg.POST("/user/login", userHandler.WeChatLogin)
+func setupPublicRoutes(rg *gin.RouterGroup, deptHandler *handler.DepartmentHandler, doctorHandler *handler.DoctorHandler, scheduleHandler *handler.ScheduleHandler, userHandler *handler.UserHandler, smsHandler *handler.SMSHandler) {
+	// 用户注册
+	rg.POST("/user/register", userHandler.Register)
+
+	// 用户登录（多种方式）
+	rg.POST("/user/login", userHandler.WeChatLogin)           // 微信登录（保持兼容）
+	rg.POST("/user/login/password", userHandler.PasswordLogin) // 密码登录
+	rg.POST("/user/login/phone", userHandler.PhoneLogin)       // 手机号登录
+
+	// 短信验证码
+	rg.POST("/sms/send", smsHandler.SendCode)
 
 	// Token刷新
 	rg.POST("/auth/refresh", userHandler.RefreshToken)

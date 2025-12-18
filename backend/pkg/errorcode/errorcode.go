@@ -55,6 +55,12 @@ const (
 	ErrIDCardExists       = 410002 // 身份证号已存在
 	ErrPatientLimitExceed = 410003 // 就诊人数量超限
 	ErrPatientHasAppt     = 410004 // 就诊人有待就诊预约，无法删除
+	ErrUsernameExists          = 410005 // 用户名已存在
+	ErrUsernameInvalid         = 410006 // 用户名格式错误
+	ErrPasswordInvalid         = 410007 // 密码格式错误
+	ErrSMSCodeInvalid          = 410008 // 验证码错误
+	ErrSMSCodeExpired          = 410009 // 验证码已过期
+	ErrSMSCodeSendTooFrequent  = 410010 // 验证码发送频繁
 
 	// 业务错误 - 预约相关 420xxx
 	ErrScheduleUnavailable     = 420001 // 该时段不可预约
@@ -140,6 +146,12 @@ var codeMessages = map[int]string{
 	ErrIDCardExists:       "身份证号已被使用",
 	ErrPatientLimitExceed: "就诊人数量已达上限",
 	ErrPatientHasAppt:     "该就诊人有待就诊预约，无法删除",
+	ErrUsernameExists:          "用户名已被使用",
+	ErrUsernameInvalid:         "用户名格式错误，请输入4-20位字母、数字或下划线，必须以字母开头",
+	ErrPasswordInvalid:         "密码格式错误，请输入6-20位字符",
+	ErrSMSCodeInvalid:          "验证码错误",
+	ErrSMSCodeExpired:          "验证码已过期，请重新获取",
+	ErrSMSCodeSendTooFrequent:  "验证码发送过于频繁，请稍后再试",
 
 	// 预约相关
 	ErrScheduleUnavailable:     "该时段暂不可预约",

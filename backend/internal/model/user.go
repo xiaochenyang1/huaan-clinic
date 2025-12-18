@@ -7,11 +7,14 @@ import (
 // User 用户模型
 type User struct {
 	BaseModel
-	OpenID       string     `gorm:"type:varchar(64);uniqueIndex;not null;comment:微信OpenID" json:"open_id"`
+	OpenID       string     `gorm:"type:varchar(64);uniqueIndex;comment:微信OpenID" json:"open_id,omitempty"`
+	Username     string     `gorm:"type:varchar(64);uniqueIndex;comment:用户名" json:"username,omitempty"`
+	Password     string     `gorm:"type:varchar(128);comment:密码" json:"-"`
+	LoginType    string     `gorm:"type:varchar(20);default:wechat;index;comment:登录类型" json:"login_type"`
 	UnionID      string     `gorm:"type:varchar(64);index;comment:微信UnionID" json:"union_id,omitempty"`
 	Nickname     string     `gorm:"type:varchar(64);comment:昵称" json:"nickname"`
 	Avatar       string     `gorm:"type:varchar(512);comment:头像URL" json:"avatar"`
-	Phone        string     `gorm:"type:varchar(20);index;comment:手机号" json:"phone"`
+	Phone        string     `gorm:"type:varchar(20);uniqueIndex;comment:手机号" json:"phone,omitempty"`
 	Gender       int        `gorm:"type:tinyint;default:0;comment:性别 0未知 1男 2女" json:"gender"`
 	Status       int        `gorm:"type:tinyint;default:1;comment:状态 0禁用 1启用" json:"status"`
 	BlockedUntil *time.Time `gorm:"comment:封禁截止时间(爽约惩罚)" json:"blocked_until,omitempty"`
