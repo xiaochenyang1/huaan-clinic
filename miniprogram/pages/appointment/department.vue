@@ -1,25 +1,5 @@
 <template>
   <view class="page">
-    <view class="header">
-      <view class="h1">门诊预约</view>
-      <view class="h2">请选择科室开始预约</view>
-    </view>
-
-    <view class="panel">
-      <view class="panel-title">快捷入口</view>
-      <view class="grid">
-        <view class="grid-item" @click="go('/pages/appointment/department')">
-          <view class="grid-text">开始预约</view>
-        </view>
-        <view class="grid-item" @click="switchTab('/pages/appointment/list')">
-          <view class="grid-text">我的预约</view>
-        </view>
-        <view class="grid-item" @click="switchTab('/pages/user/index')">
-          <view class="grid-text">个人中心</view>
-        </view>
-      </view>
-    </view>
-
     <view class="panel">
       <view class="panel-title">科室列表</view>
       <view v-if="loading" class="muted">加载中…</view>
@@ -38,19 +18,13 @@
 </template>
 
 <script setup>
-import { onShow } from '@dcloudio/uni-app'
+import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { listDepartments } from '../../api/department'
 
 const loading = ref(false)
 const departments = ref([])
 
-function go(url) {
-  uni.navigateTo({ url })
-}
-function switchTab(url) {
-  uni.switchTab({ url })
-}
 function goDept(d) {
   uni.navigateTo({ url: `/pages/appointment/doctor-list?department_id=${d.id}&department_name=${encodeURIComponent(d.name)}` })
 }
@@ -64,7 +38,7 @@ async function load() {
   }
 }
 
-onShow(load)
+onLoad(load)
 </script>
 
 <style scoped>
@@ -73,47 +47,17 @@ onShow(load)
   background: #f6f7f9;
   padding: 24rpx;
 }
-.header {
-  padding: 18rpx 6rpx 12rpx;
-}
-.h1 {
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #111827;
-}
-.h2 {
-  margin-top: 8rpx;
-  font-size: 26rpx;
-  color: #6b7280;
-}
 .panel {
   background: #fff;
   border: 1rpx solid #e5e7eb;
   border-radius: 16rpx;
   padding: 20rpx;
-  margin-top: 18rpx;
 }
 .panel-title {
   font-size: 28rpx;
   font-weight: 600;
   color: #111827;
   margin-bottom: 12rpx;
-}
-.grid {
-  display: flex;
-  gap: 12rpx;
-}
-.grid-item {
-  flex: 1;
-  border: 1rpx solid #e5e7eb;
-  border-radius: 12rpx;
-  padding: 22rpx 16rpx;
-  background: #f9fafb;
-}
-.grid-text {
-  font-size: 28rpx;
-  color: #111827;
-  font-weight: 600;
 }
 .row {
   display: flex;

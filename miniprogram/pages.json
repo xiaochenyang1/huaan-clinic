@@ -1,17 +1,90 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "uni-app"
-			}
-		}
-	],
-	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
-	},
-	"uniIdRouter": {}
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": { "navigationBarTitleText": "华安医疗" }
+    },
+    {
+      "path": "pages/login/index",
+      "style": { "navigationBarTitleText": "登录" }
+    },
+    {
+      "path": "pages/appointment/department",
+      "style": { "navigationBarTitleText": "选择科室" }
+    },
+    {
+      "path": "pages/appointment/doctor-list",
+      "style": { "navigationBarTitleText": "选择医生" }
+    },
+    {
+      "path": "pages/appointment/doctor-detail",
+      "style": { "navigationBarTitleText": "医生详情" }
+    },
+    {
+      "path": "pages/appointment/schedule",
+      "style": { "navigationBarTitleText": "选择时段" }
+    },
+    {
+      "path": "pages/appointment/confirm",
+      "style": { "navigationBarTitleText": "确认预约" }
+    },
+    {
+      "path": "pages/appointment/success",
+      "style": { "navigationBarTitleText": "预约成功" }
+    },
+    {
+      "path": "pages/appointment/list",
+      "style": { "navigationBarTitleText": "我的预约" }
+    },
+    {
+      "path": "pages/appointment/detail",
+      "style": { "navigationBarTitleText": "预约详情" }
+    },
+    {
+      "path": "pages/user/index",
+      "style": { "navigationBarTitleText": "个人中心" }
+    },
+    {
+      "path": "pages/user/patient-list",
+      "style": { "navigationBarTitleText": "就诊人管理" }
+    },
+    {
+      "path": "pages/user/patient-edit",
+      "style": { "navigationBarTitleText": "编辑就诊人" }
+    },
+    {
+      "path": "pages/user/profile",
+      "style": { "navigationBarTitleText": "个人信息" }
+    },
+    {
+      "path": "pages/user/subscribe",
+      "style": { "navigationBarTitleText": "消息提醒" }
+    },
+    {
+      "path": "pages/record/list",
+      "style": { "navigationBarTitleText": "就诊记录" }
+    },
+    {
+      "path": "pages/record/detail",
+      "style": { "navigationBarTitleText": "记录详情" }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "华安医疗",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#6B7280",
+    "selectedColor": "#1F2937",
+    "borderStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/appointment/list", "text": "预约" },
+      { "pagePath": "pages/user/index", "text": "我的" }
+    ]
+  }
 }
