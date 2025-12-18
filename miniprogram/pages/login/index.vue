@@ -7,7 +7,7 @@
       <view class="seg">
         <view class="seg-item" :class="{ active: mode === 'wechat' }" @click="mode = 'wechat'">微信</view>
         <view class="seg-item" :class="{ active: mode === 'password' }" @click="mode = 'password'">密码</view>
-        <view class="seg-item" :class="{ active: mode === 'phone' }" @click="mode = 'phone'">短信</view>
+        <view class="seg-item" :class="{ active: mode === 'phone' }" @click="mode = 'phone'">短信（测试）</view>
       </view>
 
       <view v-if="mode === 'wechat'" class="section">
@@ -32,6 +32,7 @@
       </view>
 
       <view v-else class="section">
+        <view class="hint strong">提示：短信登录目前为测试功能，需后端开启 `sms.enabled` 且仅在非 release 模式返回验证码。</view>
         <view class="field">
           <text class="label">手机号</text>
           <input class="input" v-model="phone" placeholder="请输入手机号" />
@@ -246,5 +247,10 @@ async function handlePhoneLogin() {
   margin-top: 12rpx;
   font-size: 24rpx;
   color: #6b7280;
+}
+.hint.strong {
+  margin-top: 0;
+  margin-bottom: 12rpx;
+  color: #991b1b;
 }
 </style>
