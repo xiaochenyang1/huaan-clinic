@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 
+	"huaan-medical/pkg/config"
 	"huaan-medical/pkg/errorcode"
 	"huaan-medical/pkg/response"
 	"huaan-medical/pkg/sms"
@@ -43,6 +44,16 @@ func (h *SMSHandler) SendCode(c *gin.Context) {
 		return
 	}
 
+	cfg, err := config.Load("config.yaml")
+	if err != nil {
+		response.FailWithMessage(c, errorcode.ErrInternalServer, "配置加载失败")
+		return
+	}
+	if !cfg.SMS.Enabled {
+		response.FailWithMessage(c, errorcode.ErrInvalidParams, "短信服务未启用")
+		return
+	}
+
 	// 验证手机号格式
 	if !utils.ValidatePhone(req.Phone) {
 		response.FailWithMessage(c, errorcode.ErrInvalidParams, "手机号格式错误")
@@ -59,7 +70,7 @@ func (h *SMSHandler) SendCode(c *gin.Context) {
 
 	// 测试环境返回验证码，生产环境不返回
 	resp := &SendCodeResponse{}
-	if gin.Mode() != gin.ReleaseMode {
+	if cfg.SMS.AllowTestCode && gin.Mode() != gin.ReleaseMode {
 		resp.Code = code // 仅测试/开发环境返回
 	}
 

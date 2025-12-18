@@ -34,10 +34,11 @@ type WeChatLoginRequest struct {
 
 // WeChatLoginResponse 微信登录响应
 type WeChatLoginResponse struct {
-	Token     string       `json:"token"`
-	ExpiresIn int64        `json:"expires_in"`
-	User      *model.UserVO `json:"user"`
-	IsNew     bool         `json:"is_new"` // 是否新用户
+	Token        string        `json:"token"`
+	RefreshToken string        `json:"refresh_token"`
+	ExpiresIn    int64         `json:"expires_in"`
+	User         *model.UserVO `json:"user"`
+	IsNew        bool          `json:"is_new"` // 是否新用户
 }
 
 // UpdateUserInfoRequest 更新用户信息请求
@@ -114,10 +115,11 @@ func (s *UserService) WeChatLogin(req *WeChatLoginRequest, clientIP string) (*We
 	user, _ = s.userRepo.GetByID(user.ID)
 
 	return &WeChatLoginResponse{
-		Token:     tokenPair.AccessToken,
-		ExpiresIn: tokenPair.ExpiresIn,
-		User:      user.ToVO(),
-		IsNew:     isNew,
+		Token:        tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+		ExpiresIn:    tokenPair.ExpiresIn,
+		User:         user.ToVO(),
+		IsNew:        isNew,
 	}, nil
 }
 

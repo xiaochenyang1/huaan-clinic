@@ -6,6 +6,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
+	"huaan-medical/pkg/config"
 	"huaan-medical/pkg/redis"
 	"huaan-medical/pkg/utils"
 )
@@ -39,6 +42,12 @@ func (s *Service) SendCode(phone string) (string, error) {
 	// 检查发送频率（60秒内只能发送一次）
 	if !s.canSendCode(phone) {
 		return "", fmt.Errorf("验证码发送过于频繁，请稍后再试")
+	}
+
+	cfg := config.Get()
+	// 兜底：防止生产环境误用测试短信（未接入短信服务商前直接拒绝）
+	if cfg != nil && gin.Mode() == gin.ReleaseMode && !cfg.SMS.AllowTestCode {
+		return "", fmt.Errorf("短信服务未配置")
 	}
 
 	// 生成6位随机验证码

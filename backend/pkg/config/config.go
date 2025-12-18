@@ -14,6 +14,7 @@ type Config struct {
 	Redis     RedisConfig     `mapstructure:"redis"`
 	JWT       JWTConfig       `mapstructure:"jwt"`
 	WeChat    WeChatConfig    `mapstructure:"wechat"`
+	SMS       SMSConfig       `mapstructure:"sms"`
 	Log       LogConfig       `mapstructure:"log"`
 	Business  BusinessConfig  `mapstructure:"business"`
 	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
@@ -76,8 +77,20 @@ type JWTConfig struct {
 
 // WeChatConfig 微信配置
 type WeChatConfig struct {
-	AppID     string `mapstructure:"app_id"`
-	AppSecret string `mapstructure:"app_secret"`
+	AppID     string         `mapstructure:"app_id"`
+	AppSecret string         `mapstructure:"app_secret"`
+	Subscribe WeChatSubscribe `mapstructure:"subscribe"`
+}
+
+type WeChatSubscribe struct {
+	AppointmentReminderTemplateID string `mapstructure:"appointment_reminder_template_id"`
+	AppointmentReminderPage       string `mapstructure:"appointment_reminder_page"`
+}
+
+// SMSConfig 短信配置
+type SMSConfig struct {
+	Enabled       bool `mapstructure:"enabled"`
+	AllowTestCode bool `mapstructure:"allow_test_code"` // 仅用于开发/测试：接口返回验证码
 }
 
 // LogConfig 日志配置
@@ -183,6 +196,10 @@ func setDefaults() {
 	// JWT默认配置
 	viper.SetDefault("jwt.access_token_expire", "2h")
 	viper.SetDefault("jwt.refresh_token_expire", "168h")
+
+	// 短信默认配置（默认关闭）
+	viper.SetDefault("sms.enabled", false)
+	viper.SetDefault("sms.allow_test_code", false)
 
 	// 日志默认配置
 	viper.SetDefault("log.level", "info")

@@ -7,8 +7,10 @@ import (
 	"go.uber.org/zap"
 
 	"huaan-medical/internal/model"
+	"huaan-medical/pkg/config"
 	"huaan-medical/pkg/database"
 	"huaan-medical/pkg/logger"
+	"huaan-medical/pkg/wechat"
 )
 
 var cronJob *cron.Cron
@@ -69,9 +71,21 @@ func sendAppointmentReminders() {
 	db := database.GetDB()
 	tomorrow := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
 
+	cfg, err := config.Load("config.yaml")
+	if err != nil {
+		logger.Error("加载配置失败", zap.Error(err))
+		return
+	}
+
+	tplID := cfg.WeChat.Subscribe.AppointmentReminderTemplateID
+	if cfg.WeChat.AppID == "" || cfg.WeChat.AppSecret == "" || tplID == "" {
+		logger.Info("微信订阅消息未配置，跳过推送")
+		return
+	}
+
 	// 查询明天所有待就诊的预约
 	var appointments []model.Appointment
-	err := db.Model(&model.Appointment{}).
+	err = db.Model(&model.Appointment{}).
 		Preload("User").
 		Preload("Patient").
 		Preload("Doctor").
@@ -84,11 +98,45 @@ func sendAppointmentReminders() {
 		return
 	}
 
-	// TODO: 实现微信模板消息推送
-	// 这里需要调用微信API发送模板消息
-	// 每个预约发送一条提醒消息给用户
+	wechatClient := wechat.NewClient(cfg.WeChat.AppID, cfg.WeChat.AppSecret)
+	page := cfg.WeChat.Subscribe.AppointmentReminderPage
 
-	logger.Info("发送就诊提醒完成", zap.Int("count", len(appointments)))
+	var okCount int
+	var failCount int
+	for _, a := range appointments {
+		openID := ""
+		if a.User != nil {
+			openID = a.User.OpenID
+		}
+		if openID == "" {
+			failCount++
+			continue
+		}
+
+		// 注意：订阅消息模板字段由你在微信后台创建的模板决定。
+		// 这里使用常见字段名示例（thing1/time2/thing3），如不匹配会发送失败。
+		data := map[string]interface{}{
+			"thing1": map[string]string{"value": a.Patient.Name}, // 就诊人
+			"time2":  map[string]string{"value": a.AppointmentDate.Format("2006-01-02") + " " + model.GetPeriodName(a.Period)}, // 时间
+			"thing3": map[string]string{"value": a.Department.Name + " " + a.Doctor.Name},                      // 科室/医生
+		}
+
+		req := &wechat.SubscribeMessageRequest{
+			ToUser:     openID,
+			TemplateID: tplID,
+			Page:       page,
+			Data:       data,
+		}
+
+		if err := wechatClient.SendSubscribeMessage(req); err != nil {
+			failCount++
+			logger.Warn("发送就诊提醒失败", zap.Error(err), zap.Int64("appointment_id", a.ID))
+			continue
+		}
+		okCount++
+	}
+
+	logger.Info("发送就诊提醒完成", zap.Int("total", len(appointments)), zap.Int("ok", okCount), zap.Int("fail", failCount))
 }
 
 // cleanExpiredTokens 清理过期Token
