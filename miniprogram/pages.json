@@ -61,12 +61,41 @@
       "style": { "navigationBarTitleText": "消息提醒" }
     },
     {
+      "path": "pages/user/messages",
+      "style": { "navigationBarTitleText": "消息中心" }
+    },
+    {
+      "path": "pages/user/settings",
+      "style": { "navigationBarTitleText": "设置" }
+    },
+    {
       "path": "pages/record/list",
       "style": { "navigationBarTitleText": "就诊记录" }
     },
     {
       "path": "pages/record/detail",
       "style": { "navigationBarTitleText": "记录详情" }
+    }
+    ,
+    {
+      "path": "pages/legal/privacy",
+      "style": { "navigationBarTitleText": "隐私政策" }
+    },
+    {
+      "path": "pages/legal/terms",
+      "style": { "navigationBarTitleText": "用户协议" }
+    },
+    {
+      "path": "pages/legal/about",
+      "style": { "navigationBarTitleText": "关于我们" }
+    },
+    {
+      "path": "pages/legal/contact",
+      "style": { "navigationBarTitleText": "联系方式" }
+    },
+    {
+      "path": "pages/legal/notice",
+      "style": { "navigationBarTitleText": "就诊须知" }
     }
   ],
   "globalStyle": {

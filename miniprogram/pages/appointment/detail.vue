@@ -16,6 +16,10 @@
         <button v-if="a.status === 'pending'" class="btn primary" @click="checkin">签到</button>
         <button v-if="a.status === 'pending'" class="btn danger" @click="openCancel">取消预约</button>
       </view>
+
+      <view class="more">
+        <text class="more-link" @click="goNotice">查看就诊须知与预约规则</text>
+      </view>
     </view>
 
     <view v-else class="panel">
@@ -83,6 +87,10 @@ async function doCancel() {
   } finally {
     submitting.value = false
   }
+}
+
+function goNotice() {
+  uni.navigateTo({ url: '/pages/legal/notice' })
 }
 
 onLoad((q) => {
@@ -208,5 +216,12 @@ onShow(() => {
   display: flex;
   gap: 12rpx;
 }
+.more {
+  margin-top: 16rpx;
+}
+.more-link {
+  font-size: 24rpx;
+  color: #111827;
+  text-decoration: underline;
+}
 </style>
-

@@ -21,6 +21,7 @@
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { getDoctor } from '../../api/doctor'
+import { addRecentDoctor } from '../../utils/recent'
 
 const id = ref('')
 const loading = ref(false)
@@ -36,6 +37,7 @@ async function load() {
   loading.value = true
   try {
     doctor.value = await getDoctor(id.value)
+    if (doctor.value?.id) addRecentDoctor(doctor.value)
   } finally {
     loading.value = false
   }
@@ -104,4 +106,3 @@ onLoad((q) => {
   font-size: 26rpx;
 }
 </style>
-

@@ -35,6 +35,13 @@
     <view class="panel">
       <view class="panel-title">症状描述（可选）</view>
       <textarea class="textarea" v-model="symptom" placeholder="请简要描述症状（选填）" maxlength="512" />
+      <view class="agree" @click="agreed = !agreed">
+        <view class="box" :class="{ on: agreed }"></view>
+        <view class="agree-text">
+          我已阅读并同意
+          <text class="link" @click.stop="goNotice">《就诊须知与预约规则》</text>
+        </view>
+      </view>
       <button class="btn primary" @click="submit" :disabled="loading">
         {{ loading ? '提交中…' : '确认预约' }}
       </button>
@@ -60,6 +67,7 @@ const patients = ref([])
 const patientIndex = ref(0)
 const symptom = ref('')
 const loading = ref(false)
+const agreed = ref(false)
 
 const patientNames = computed(() => patients.value.map((p) => `${p.name}（${p.relation_name || p.relation || ''}）`))
 
@@ -69,6 +77,10 @@ function goPatientList() {
 
 function onPickPatient(e) {
   patientIndex.value = Number(e.detail.value || 0)
+}
+
+function goNotice() {
+  uni.navigateTo({ url: '/pages/legal/notice' })
 }
 
 async function loadPatients() {
@@ -89,6 +101,10 @@ async function submit() {
   const patient = patients.value[patientIndex.value]
   if (!patient?.id) {
     uni.showToast({ title: '请选择就诊人', icon: 'none' })
+    return
+  }
+  if (!agreed.value) {
+    uni.showToast({ title: '请先阅读并同意就诊须知', icon: 'none' })
     return
   }
 
@@ -205,5 +221,29 @@ onShow(async () => {
   box-sizing: border-box;
   background: #fff;
 }
+.agree {
+  margin-top: 14rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.box {
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid #9ca3af;
+  border-radius: 6rpx;
+  background: #fff;
+}
+.box.on {
+  border-color: #111827;
+  background: #111827;
+}
+.agree-text {
+  font-size: 24rpx;
+  color: #374151;
+}
+.link {
+  color: #111827;
+  text-decoration: underline;
+}
 </style>
-

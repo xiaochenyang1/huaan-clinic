@@ -9,10 +9,12 @@
 
       <view class="actions">
         <button class="btn" @click="goProfile">个人信息</button>
+        <button class="btn" @click="goMessages">消息中心</button>
         <button class="btn" @click="goSubscribe">消息提醒</button>
         <button class="btn" @click="goPatient">就诊人管理</button>
         <button class="btn" @click="goAppointments">我的预约</button>
         <button class="btn" @click="goRecords">就诊记录</button>
+        <button class="btn" @click="goSettings">设置</button>
         <button class="btn danger" @click="doLogout">退出登录</button>
       </view>
     </view>
@@ -30,6 +32,9 @@ const user = ref(getUser())
 function goProfile() {
   uni.navigateTo({ url: '/pages/user/profile' })
 }
+function goMessages() {
+  uni.navigateTo({ url: '/pages/user/messages' })
+}
 function goSubscribe() {
   uni.navigateTo({ url: '/pages/user/subscribe' })
 }
@@ -41,6 +46,9 @@ function goAppointments() {
 }
 function goRecords() {
   uni.navigateTo({ url: '/pages/record/list' })
+}
+function goSettings() {
+  uni.navigateTo({ url: '/pages/user/settings' })
 }
 async function doLogout() {
   await logout()
