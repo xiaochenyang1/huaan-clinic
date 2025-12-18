@@ -1,6 +1,8 @@
 package scheduler
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -10,6 +12,7 @@ import (
 	"huaan-medical/pkg/config"
 	"huaan-medical/pkg/database"
 	"huaan-medical/pkg/logger"
+	"huaan-medical/pkg/redis"
 	"huaan-medical/pkg/wechat"
 )
 
@@ -116,9 +119,9 @@ func sendAppointmentReminders() {
 		// 注意：订阅消息模板字段由你在微信后台创建的模板决定。
 		// 这里使用常见字段名示例（thing1/time2/thing3），如不匹配会发送失败。
 		data := map[string]interface{}{
-			"thing1": map[string]string{"value": a.Patient.Name}, // 就诊人
+			"thing1": map[string]string{"value": a.Patient.Name},                                                               // 就诊人
 			"time2":  map[string]string{"value": a.AppointmentDate.Format("2006-01-02") + " " + model.GetPeriodName(a.Period)}, // 时间
-			"thing3": map[string]string{"value": a.Department.Name + " " + a.Doctor.Name},                      // 科室/医生
+			"thing3": map[string]string{"value": a.Department.Name + " " + a.Doctor.Name},                                      // 科室/医生
 		}
 
 		req := &wechat.SubscribeMessageRequest{
@@ -144,8 +147,49 @@ func sendAppointmentReminders() {
 func cleanExpiredTokens() {
 	logger.Info("开始清理过期Token")
 
-	// TODO: 清理Redis中的过期Token黑名单等
-	// Redis会自动清理过期key，这里可以做一些额外的清理工作
+	if !redis.IsEnabled() {
+		logger.Info("Redis未启用，跳过清理")
+		return
+	}
 
-	logger.Info("清理过期Token完成")
+	// Redis会自动清理带 TTL 的 key；这里额外处理“无过期时间”的黑名单 key（通常属于异常数据）。
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	client := redis.GetClient()
+	pattern := fmt.Sprintf(redis.KeyTokenBlacklist, "*")
+	var cursor uint64
+
+	var scanned int
+	var deleted int
+	var noExpire int
+
+	for {
+		keys, nextCursor, err := client.Scan(ctx, cursor, pattern, 200).Result()
+		if err != nil {
+			logger.Warn("扫描Token黑名单失败", zap.Error(err))
+			break
+		}
+
+		scanned += len(keys)
+		for _, key := range keys {
+			ttl, err := client.TTL(ctx, key).Result()
+			if err != nil {
+				continue
+			}
+			// -1: 永不过期（异常）；-2: 不存在
+			if ttl == -1 {
+				noExpire++
+				_ = client.Del(ctx, key).Err()
+				deleted++
+			}
+		}
+
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
+	}
+
+	logger.Info("清理过期Token完成", zap.Int("scanned", scanned), zap.Int("deleted", deleted), zap.Int("no_expire", noExpire))
 }

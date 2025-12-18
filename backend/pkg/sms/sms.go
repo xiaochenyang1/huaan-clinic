@@ -37,30 +37,47 @@ func GetService() *Service {
 	return instance
 }
 
+func (s *Service) getProvider() Provider {
+	cfg := config.Get()
+	if cfg == nil || !cfg.SMS.Enabled {
+		return &DisabledProvider{}
+	}
+	switch cfg.SMS.Provider {
+	case "console":
+		return &ConsoleProvider{}
+	case "", "disabled":
+		return &DisabledProvider{}
+	default:
+		return &DisabledProvider{}
+	}
+}
+
 // SendCode 发送验证码
-func (s *Service) SendCode(phone string) (string, error) {
+func (s *Service) SendCode(phone string) error {
 	// 检查发送频率（60秒内只能发送一次）
 	if !s.canSendCode(phone) {
-		return "", fmt.Errorf("验证码发送过于频繁，请稍后再试")
+		return fmt.Errorf("验证码发送过于频繁，请稍后再试")
 	}
 
 	cfg := config.Get()
-	// 兜底：防止生产环境误用测试短信（未接入短信服务商前直接拒绝）
-	if cfg != nil && gin.Mode() == gin.ReleaseMode && !cfg.SMS.AllowTestCode {
-		return "", fmt.Errorf("短信服务未配置")
+	if gin.Mode() == gin.ReleaseMode && cfg != nil && cfg.SMS.Provider == "console" {
+		// 避免误把 console provider 用在生产
+		return fmt.Errorf("短信服务未配置")
 	}
 
 	// 生成6位随机验证码
 	code := utils.GenerateRandomNumber(6)
 
-	// 保存验证码
-	if err := s.saveCode(phone, code); err != nil {
-		return "", err
+	// 调用短信服务商发送
+	if err := s.getProvider().SendCode(context.Background(), phone, code); err != nil {
+		return err
 	}
 
-	// TODO: 这里对接真实短信服务
-	// 目前返回验证码用于测试（生产环境应该删除）
-	return code, nil
+	// 保存验证码（发送成功后再保存，避免“发送失败但验证码仍可用”）
+	if err := s.saveCode(phone, code); err != nil {
+		return err
+	}
+	return nil
 }
 
 // VerifyCode 验证验证码

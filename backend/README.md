@@ -61,6 +61,10 @@ cp config.example.yaml config.yaml
 
 编辑 `config.yaml`，配置数据库、Redis、微信等信息。
 
+短信验证码说明：
+- 接口不会回传验证码（避免测试逻辑误入生产）。
+- 可在 `config.yaml` 中开启 `sms.enabled: true` 并设置 `sms.provider: console`，验证码会写入后端日志用于联调。
+
 ### 3. 安装依赖
 
 ```bash

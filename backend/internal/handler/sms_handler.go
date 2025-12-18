@@ -23,19 +23,14 @@ type SendCodeRequest struct {
 	Phone string `json:"phone" binding:"required,len=11"`
 }
 
-// SendCodeResponse 发送验证码响应
-type SendCodeResponse struct {
-	Code string `json:"code,omitempty"` // 仅测试环境返回
-}
-
 // SendCode 发送验证码
 // @Summary 发送验证码
-// @Description 发送短信验证码（测试环境返回验证码）
+// @Description 发送短信验证码
 // @Tags 短信
 // @Accept json
 // @Produce json
 // @Param request body SendCodeRequest true "手机号"
-// @Success 200 {object} response.Response{data=SendCodeResponse}
+// @Success 200 {object} response.Response
 // @Router /api/sms/send [post]
 func (h *SMSHandler) SendCode(c *gin.Context) {
 	var req SendCodeRequest
@@ -44,12 +39,8 @@ func (h *SMSHandler) SendCode(c *gin.Context) {
 		return
 	}
 
-	cfg, err := config.Load("config.yaml")
-	if err != nil {
-		response.FailWithMessage(c, errorcode.ErrInternalServer, "配置加载失败")
-		return
-	}
-	if !cfg.SMS.Enabled {
+	cfg := config.Get()
+	if cfg == nil || !cfg.SMS.Enabled {
 		response.FailWithMessage(c, errorcode.ErrInvalidParams, "短信服务未启用")
 		return
 	}
@@ -62,17 +53,11 @@ func (h *SMSHandler) SendCode(c *gin.Context) {
 
 	// 发送验证码
 	smsService := sms.GetService()
-	code, err := smsService.SendCode(req.Phone)
+	err := smsService.SendCode(req.Phone)
 	if err != nil {
 		response.FailWithMessage(c, errorcode.ErrSMSCodeSendTooFrequent, err.Error())
 		return
 	}
 
-	// 测试环境返回验证码，生产环境不返回
-	resp := &SendCodeResponse{}
-	if cfg.SMS.AllowTestCode && gin.Mode() != gin.ReleaseMode {
-		resp.Code = code // 仅测试/开发环境返回
-	}
-
-	response.SuccessWithMessage(c, "验证码发送成功", resp)
+	response.SuccessWithMessage(c, "验证码发送成功", gin.H{})
 }
