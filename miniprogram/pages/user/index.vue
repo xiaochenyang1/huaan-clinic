@@ -23,11 +23,12 @@
 
 <script setup>
 import { onShow } from '@dcloudio/uni-app'
-import { ref } from 'vue'
-import { getUserInfo } from '../../api/auth'
-import { getUser, isLoggedIn, logout, setUser, toLoginPage } from '../../utils/auth'
+import { computed } from 'vue'
+import { toLoginPage } from '../../utils/auth'
+import { useUserStore } from '../../store'
 
-const user = ref(getUser())
+const userStore = useUserStore()
+const user = computed(() => userStore.user)
 
 function goProfile() {
   uni.navigateTo({ url: '/pages/user/profile' })
@@ -51,20 +52,18 @@ function goSettings() {
   uni.navigateTo({ url: '/pages/user/settings' })
 }
 async function doLogout() {
-  await logout()
+  userStore.logout()
 }
 
 onShow(async () => {
-  if (!isLoggedIn()) {
-    user.value = null
+  userStore.syncToken()
+  if (!userStore.loggedIn) {
+    userStore.setUser(null)
     toLoginPage()
     return
   }
-  user.value = getUser()
   try {
-    const u = await getUserInfo()
-    setUser(u)
-    user.value = u
+    await userStore.refreshUser()
   } catch (e) {}
 })
 </script>

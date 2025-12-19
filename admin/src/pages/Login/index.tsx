@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Form, Input, Button, Card, message } from 'antd'
 import { UserOutlined, LockOutlined, MedicineBoxOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
+import { type Location, useLocation, useNavigate } from 'react-router-dom'
 import http from '@/utils/http'
 
 interface LoginForm {
@@ -11,6 +11,7 @@ interface LoginForm {
 
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
@@ -21,7 +22,8 @@ const Login = () => {
       if (response.data.code === 200000) {
         localStorage.setItem('token', response.data.data.token)
         message.success('登录成功')
-        navigate('/dashboard')
+        const from = (location.state as { from?: Location } | null)?.from?.pathname || '/dashboard'
+        navigate(from, { replace: true })
       } else {
         message.error(response.data.message || '登录失败')
       }

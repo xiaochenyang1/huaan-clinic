@@ -257,6 +257,18 @@ func (s *AppointmentService) GetByID(userID, appointmentID int64) (*model.Appoin
 	return appointment.ToVO(), nil
 }
 
+// GetByIDAdmin 获取预约详情（管理后台，无需用户权限校验）
+func (s *AppointmentService) GetByIDAdmin(appointmentID int64) (*model.AppointmentVO, error) {
+	appointment, err := s.repo.GetByID(appointmentID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorcode.New(errorcode.ErrAppointmentNotFound)
+		}
+		return nil, errorcode.New(errorcode.ErrDatabase)
+	}
+	return appointment.ToVO(), nil
+}
+
 // ListByUser 查询用户的预约列表
 func (s *AppointmentService) ListByUser(userID int64, req *ListAppointmentRequest) ([]model.AppointmentListVO, error) {
 	appointments, err := s.repo.ListByUser(userID, req.Status)

@@ -32,7 +32,7 @@
       </view>
 
       <view v-else class="section">
-        <view class="hint strong">提示：短信登录目前为测试功能，需后端开启 `sms.enabled` 且仅在非 release 模式返回验证码。</view>
+        <view class="hint strong">提示：需后端开启 `sms.enabled` 并配置 `sms.provider`；验证码不会回传到客户端（请看后端日志/真实短信）。</view>
         <view class="field">
           <text class="label">手机号</text>
           <input class="input" v-model="phone" placeholder="请输入手机号" />
@@ -56,8 +56,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { onUnload } from '@dcloudio/uni-app'
 import { wechatLogin, passwordLogin, phoneLogin, sendSmsCode, getUserInfo } from '../../api/auth'
-import { setTokens, setUser } from '../../utils/auth'
+import { useUserStore } from '../../store'
 
 const mode = ref('wechat')
 const loading = ref(false)
@@ -70,6 +71,7 @@ const smsCode = ref('')
 const smsSending = ref(false)
 const smsCountdown = ref(60)
 let smsTimer = null
+const userStore = useUserStore()
 
 function stopTimer() {
   if (smsTimer) clearInterval(smsTimer)
@@ -79,10 +81,23 @@ function stopTimer() {
 async function afterLogin(data) {
   const accessToken = data?.token || data?.access_token
   const refreshToken = data?.refresh_token
-  setTokens({ accessToken, refreshToken })
+  userStore.setTokens({ accessToken, refreshToken })
+
+  if (data?.user) {
+    userStore.setUser(data.user)
+    if (data.user.has_phone === false) {
+      uni.redirectTo({ url: '/pages/login/complete' })
+      return
+    }
+  }
+
   try {
     const user = await getUserInfo()
-    setUser(user)
+    userStore.setUser(user)
+    if (user && user.has_phone === false) {
+      uni.redirectTo({ url: '/pages/login/complete' })
+      return
+    }
   } catch (e) {}
   uni.switchTab({ url: '/pages/index/index' })
 }
@@ -152,6 +167,10 @@ async function handlePhoneLogin() {
     loading.value = false
   }
 }
+
+onUnload(() => {
+  stopTimer()
+})
 </script>
 
 <style scoped>

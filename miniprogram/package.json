@@ -1,0 +1,9 @@
+{
+  "name": "huaan-medical-miniprogram",
+  "private": true,
+  "version": "0.1.0",
+  "dependencies": {
+    "pinia": "^2.3.0"
+  }
+}
+

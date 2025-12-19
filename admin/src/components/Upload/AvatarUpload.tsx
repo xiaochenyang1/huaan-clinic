@@ -3,17 +3,10 @@ import { Upload, message } from 'antd'
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import type { UploadChangeParam } from 'antd/es/upload'
 import type { RcFile, UploadFile } from 'antd/es/upload/interface'
-import http from '@/utils/http'
 
 interface AvatarUploadProps {
   value?: string
   onChange?: (url: string) => void
-}
-
-const getBase64 = (img: RcFile, callback: (url: string) => void) => {
-  const reader = new FileReader()
-  reader.addEventListener('load', () => callback(reader.result as string))
-  reader.readAsDataURL(img)
 }
 
 const beforeUpload = (file: RcFile) => {

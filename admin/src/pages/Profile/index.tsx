@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Card, Descriptions, Button, Modal, Form, Input, message, Space } from 'antd'
-import { EditOutlined, LockOutlined } from '@ant-design/icons'
+import { Card, Descriptions, Button, Modal, Form, Input, message } from 'antd'
+import { LockOutlined } from '@ant-design/icons'
 import http from '@/utils/http'
 
 interface AdminInfo {

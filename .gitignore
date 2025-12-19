@@ -72,5 +72,6 @@ miniprogram/.hbuilderx/
 admin/node_modules/
 admin/dist/
 admin/build/
+admin/*.tsbuildinfo
 admin/.env
 admin/.env.*

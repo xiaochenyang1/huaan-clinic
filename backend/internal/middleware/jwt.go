@@ -22,6 +22,8 @@ const (
 	ContextKeyAdminID = "admin_id"
 	// ContextKeyAdminRole 管理员角色上下文键
 	ContextKeyAdminRole = "admin_role"
+	// ContextKeyAdminUsername 管理员用户名上下文键
+	ContextKeyAdminUsername = "admin_username"
 )
 
 // JWTAuth 用户JWT认证中间件
@@ -107,6 +109,7 @@ func JWTAdminAuth() gin.HandlerFunc {
 		// 将管理员信息存入上下文
 		c.Set(ContextKeyAdminID, claims.AdminID)
 		c.Set(ContextKeyAdminRole, claims.Role)
+		c.Set(ContextKeyAdminUsername, claims.Username)
 		c.Next()
 	}
 }
@@ -155,6 +158,14 @@ func GetAdminID(c *gin.Context) int64 {
 func GetAdminRole(c *gin.Context) string {
 	if role, exists := c.Get(ContextKeyAdminRole); exists {
 		return role.(string)
+	}
+	return ""
+}
+
+// GetAdminUsername 从上下文获取管理员用户名
+func GetAdminUsername(c *gin.Context) string {
+	if username, exists := c.Get(ContextKeyAdminUsername); exists {
+		return username.(string)
 	}
 	return ""
 }

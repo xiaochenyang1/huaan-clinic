@@ -9,13 +9,13 @@
     </view>
 
     <view class="panel">
-      <view v-if="loading" class="muted">加载中…</view>
+      <Loading v-if="loading" />
       <view v-else>
-        <view v-if="items.length === 0" class="muted">暂无记录</view>
+        <Empty v-if="items.length === 0" text="暂无记录" />
         <view v-for="a in items" :key="a.id" class="card" @click="goDetail(a)">
           <view class="card-title">
             <text class="strong">{{ a.department_name || '-' }}</text>
-            <text class="badge">{{ a.status_name || a.status || '-' }}</text>
+            <Tag :text="a.status_name || a.status || '-'" :type="statusType(a.status)" />
           </view>
           <view class="card-sub">{{ a.doctor_name || '-' }} · {{ a.patient_name || '-' }}</view>
           <view class="card-sub">{{ a.appointment_date || '-' }} {{ a.period_name || '' }}</view>
@@ -34,10 +34,22 @@ import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { isLoggedIn, toLoginPage } from '../../utils/auth'
 import { listAppointments } from '../../api/appointment'
+import Loading from '../../components/Loading.vue'
+import Empty from '../../components/Empty.vue'
+import Tag from '../../components/Tag.vue'
 
 const status = ref('')
 const loading = ref(false)
 const items = ref([])
+
+function statusType(status) {
+  if (status === 'completed') return 'success'
+  if (status === 'checked_in') return 'info'
+  if (status === 'pending') return 'warning'
+  if (status === 'cancelled') return 'danger'
+  if (status === 'missed') return 'danger'
+  return 'default'
+}
 
 function goStart() {
   uni.navigateTo({ url: '/pages/appointment/department' })
@@ -155,4 +167,3 @@ onShow(() => {
   color: #fff;
 }
 </style>
-

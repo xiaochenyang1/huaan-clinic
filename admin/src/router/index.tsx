@@ -9,6 +9,11 @@ import AppointmentList from '@/pages/Appointment/List'
 import PatientList from '@/pages/Patient/List'
 import Statistics from '@/pages/Statistics'
 import Profile from '@/pages/Profile'
+import NotFound from '@/pages/NotFound'
+import Logs from '@/pages/Logs'
+import AdminManagement from '@/pages/System/Admin'
+import RoleManagement from '@/pages/System/Role'
+import RequireAuth from './RequireAuth'
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -18,7 +23,11 @@ const AppRouter = () => {
     },
     {
       path: '/',
-      element: <MainLayout />,
+      element: (
+        <RequireAuth>
+          <MainLayout />
+        </RequireAuth>
+      ),
       children: [
         {
           index: true,
@@ -53,10 +62,30 @@ const AppRouter = () => {
           element: <Statistics />,
         },
         {
+          path: 'system/admin',
+          element: <AdminManagement />,
+        },
+        {
+          path: 'system/role',
+          element: <RoleManagement />,
+        },
+        {
+          path: 'logs',
+          element: <Logs />,
+        },
+        {
           path: 'profile',
           element: <Profile />,
         },
+        {
+          path: '*',
+          element: <NotFound />,
+        },
       ],
+    },
+    {
+      path: '*',
+      element: <NotFound />,
     },
   ])
 

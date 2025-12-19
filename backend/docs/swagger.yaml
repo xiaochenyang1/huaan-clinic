@@ -1,0 +1,3135 @@
+basePath: /api
+definitions:
+  handler.IdempotentTokenResponse:
+    properties:
+      expires_in:
+        description: 过期时间（秒）
+        type: integer
+      token:
+        type: string
+    type: object
+  handler.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  handler.SendCodeRequest:
+    properties:
+      phone:
+        type: string
+    required:
+    - phone
+    type: object
+  handler.UploadAvatarResponse:
+    properties:
+      file_name:
+        description: 文件名
+        type: string
+      file_size:
+        description: 文件大小（字节）
+        type: integer
+      url:
+        description: 访问URL
+        type: string
+    type: object
+  jwt.TokenPair:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        description: 过期时间（秒）
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  model.AdminVO:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      last_login_at:
+        type: string
+      nickname:
+        type: string
+      phone:
+        type: string
+      role_names:
+        items:
+          type: string
+        type: array
+      roles:
+        items:
+          type: string
+        type: array
+      status:
+        type: integer
+      status_name:
+        type: string
+      username:
+        type: string
+    type: object
+  model.AppointmentListVO:
+    properties:
+      appointment_date:
+        type: string
+      appointment_no:
+        type: string
+      appointment_time:
+        type: string
+      can_cancel:
+        type: boolean
+      can_checkin:
+        type: boolean
+      department_name:
+        type: string
+      doctor_avatar:
+        type: string
+      doctor_name:
+        type: string
+      id:
+        type: integer
+      patient_name:
+        type: string
+      period_name:
+        type: string
+      status:
+        type: string
+      status_name:
+        type: string
+    type: object
+  model.AppointmentVO:
+    properties:
+      appointment_date:
+        type: string
+      appointment_no:
+        type: string
+      appointment_time:
+        type: string
+      can_cancel:
+        description: 是否可取消
+        type: boolean
+      can_checkin:
+        description: 是否可签到
+        type: boolean
+      cancel_reason:
+        type: string
+      cancelled_at:
+        type: string
+      checked_in_at:
+        type: string
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      department_id:
+        type: integer
+      department_name:
+        type: string
+      doctor_avatar:
+        type: string
+      doctor_id:
+        type: integer
+      doctor_name:
+        type: string
+      doctor_title:
+        type: string
+      id:
+        type: integer
+      patient_id:
+        type: integer
+      patient_name:
+        type: string
+      period:
+        type: string
+      period_name:
+        type: string
+      slot_number:
+        type: integer
+      status:
+        type: string
+      status_name:
+        type: string
+      symptom:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.DepartmentVO:
+    properties:
+      description:
+        type: string
+      doctor_count:
+        description: 医生数量
+        type: integer
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: integer
+      status_name:
+        type: string
+    type: object
+  model.DoctorListVO:
+    properties:
+      avatar:
+        type: string
+      department_id:
+        type: integer
+      department_name:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      specialty:
+        type: string
+      status:
+        type: integer
+      status_name:
+        type: string
+      title:
+        type: string
+      title_name:
+        type: string
+    type: object
+  model.DoctorVO:
+    properties:
+      avatar:
+        type: string
+      department_id:
+        type: integer
+      department_name:
+        type: string
+      id:
+        type: integer
+      introduction:
+        type: string
+      name:
+        type: string
+      sort_order:
+        type: integer
+      specialty:
+        type: string
+      status:
+        type: integer
+      status_name:
+        type: string
+      title:
+        type: string
+      title_name:
+        type: string
+    type: object
+  model.LoginLogVO:
+    properties:
+      created_at:
+        type: string
+      device:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      location:
+        type: string
+      login_type:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+      user_id:
+        type: integer
+      user_type:
+        type: string
+      username:
+        type: string
+    type: object
+  model.MedicalRecordListVO:
+    properties:
+      department_name:
+        type: string
+      diagnosis:
+        type: string
+      doctor_name:
+        type: string
+      id:
+        type: integer
+      patient_name:
+        type: string
+      visit_date:
+        type: string
+    type: object
+  model.MedicalRecordVO:
+    properties:
+      advice:
+        type: string
+      appointment_id:
+        type: integer
+      appointment_no:
+        type: string
+      created_at:
+        type: string
+      department_id:
+        type: integer
+      department_name:
+        type: string
+      diagnosis:
+        type: string
+      doctor_id:
+        type: integer
+      doctor_name:
+        type: string
+      doctor_title:
+        type: string
+      id:
+        type: integer
+      patient_id:
+        type: integer
+      patient_name:
+        type: string
+      prescription:
+        type: string
+      remark:
+        type: string
+      visit_date:
+        type: string
+    type: object
+  model.OperationLogVO:
+    properties:
+      action:
+        type: string
+      admin_id:
+        type: integer
+      admin_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      latency:
+        type: integer
+      method:
+        type: string
+      module:
+        type: string
+      path:
+        type: string
+      status:
+        type: integer
+    type: object
+  model.PatientVO:
+    properties:
+      age:
+        type: integer
+      birth_date:
+        type: string
+      gender:
+        type: integer
+      gender_name:
+        type: string
+      id:
+        type: integer
+      id_card:
+        description: 脱敏后的身份证号
+        type: string
+      is_default:
+        type: integer
+      last_login_ip:
+        description: 用户最后登录IP
+        type: string
+      name:
+        type: string
+      phone:
+        description: 脱敏后的手机号
+        type: string
+      relation:
+        type: string
+      relation_name:
+        type: string
+    type: object
+  model.RoleVO:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+      sort_order:
+        type: integer
+      status:
+        type: integer
+      status_name:
+        type: string
+    type: object
+  model.ScheduleVO:
+    properties:
+      available_slots:
+        type: integer
+      department_id:
+        type: integer
+      department_name:
+        type: string
+      doctor_id:
+        type: integer
+      doctor_name:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: integer
+      is_available:
+        description: 是否可预约
+        type: boolean
+      period:
+        type: string
+      period_name:
+        type: string
+      schedule_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        type: integer
+      status_name:
+        type: string
+      total_slots:
+        type: integer
+    type: object
+  model.UserVO:
+    properties:
+      avatar:
+        type: string
+      gender:
+        type: integer
+      has_phone:
+        description: 是否绑定手机
+        type: boolean
+      id:
+        type: integer
+      is_blocked:
+        description: 是否被封禁
+        type: boolean
+      nickname:
+        type: string
+      phone:
+        type: string
+    type: object
+  response.PageData:
+    properties:
+      list: {}
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  service.AppointmentStats:
+    properties:
+      cancelled:
+        description: 已取消
+        type: integer
+      checked_in:
+        description: 已签到
+        type: integer
+      completed:
+        description: 已完成
+        type: integer
+      missed:
+        description: 已爽约
+        type: integer
+      pending:
+        description: 待就诊
+        type: integer
+      total:
+        description: 总预约数
+        type: integer
+    type: object
+  service.BatchCreateScheduleRequest:
+    properties:
+      doctor_id:
+        minimum: 1
+        type: integer
+      end_date:
+        description: YYYY-MM-DD
+        type: string
+      end_times:
+        description: '[上午结束时间, 下午结束时间]'
+        items:
+          type: string
+        type: array
+      periods:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      start_date:
+        description: YYYY-MM-DD
+        type: string
+      start_times:
+        description: '[上午开始时间, 下午开始时间]'
+        items:
+          type: string
+        type: array
+      total_slots:
+        maximum: 999
+        minimum: 1
+        type: integer
+      week_days:
+        description: 0=周日, 1=周一...6=周六
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - doctor_id
+    - end_date
+    - end_times
+    - periods
+    - start_date
+    - start_times
+    - total_slots
+    - week_days
+    type: object
+  service.CancelAppointmentRequest:
+    properties:
+      reason:
+        maxLength: 256
+        minLength: 2
+        type: string
+    required:
+    - reason
+    type: object
+  service.ChangePasswordRequest:
+    properties:
+      new_password:
+        maxLength: 32
+        minLength: 6
+        type: string
+      old_password:
+        maxLength: 32
+        minLength: 6
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  service.CreateAdminRequest:
+    properties:
+      email:
+        maxLength: 128
+        type: string
+      nickname:
+        maxLength: 64
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+      phone:
+        maxLength: 20
+        type: string
+      role_ids:
+        items:
+          type: integer
+        type: array
+      status:
+        type: integer
+      username:
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  service.CreateAppointmentRequest:
+    properties:
+      idempotent_token:
+        type: string
+      patient_id:
+        minimum: 1
+        type: integer
+      schedule_id:
+        minimum: 1
+        type: integer
+      symptom:
+        maxLength: 512
+        type: string
+    required:
+    - idempotent_token
+    - patient_id
+    - schedule_id
+    type: object
+  service.CreateDepartmentRequest:
+    properties:
+      description:
+        maxLength: 512
+        type: string
+      icon:
+        maxLength: 256
+        type: string
+      name:
+        maxLength: 64
+        minLength: 2
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: integer
+    required:
+    - name
+    type: object
+  service.CreateDoctorRequest:
+    properties:
+      avatar:
+        maxLength: 512
+        type: string
+      department_id:
+        minimum: 1
+        type: integer
+      introduction:
+        maxLength: 2000
+        type: string
+      name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      sort_order:
+        type: integer
+      specialty:
+        maxLength: 256
+        type: string
+      status:
+        enum:
+        - 0
+        - 1
+        type: integer
+      title:
+        enum:
+        - chief_physician
+        - associate_chief_physician
+        - attending_physician
+        - resident_physician
+        type: string
+    required:
+    - department_id
+    - name
+    - title
+    type: object
+  service.CreatePatientRequest:
+    properties:
+      id_card:
+        type: string
+      is_default:
+        enum:
+        - 0
+        - 1
+        type: integer
+      name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      phone:
+        type: string
+      relation:
+        enum:
+        - self
+        - parent
+        - child
+        - spouse
+        - other
+        type: string
+    required:
+    - id_card
+    - name
+    - phone
+    - relation
+    type: object
+  service.CreateRoleRequest:
+    properties:
+      code:
+        maxLength: 32
+        minLength: 2
+        type: string
+      description:
+        maxLength: 256
+        type: string
+      name:
+        maxLength: 64
+        minLength: 2
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: integer
+    required:
+    - code
+    - name
+    type: object
+  service.CreateScheduleRequest:
+    properties:
+      doctor_id:
+        minimum: 1
+        type: integer
+      end_time:
+        description: HH:mm
+        type: string
+      period:
+        enum:
+        - morning
+        - afternoon
+        type: string
+      schedule_date:
+        description: YYYY-MM-DD
+        type: string
+      start_time:
+        description: HH:mm
+        type: string
+      status:
+        enum:
+        - 0
+        - 1
+        type: integer
+      total_slots:
+        maximum: 999
+        minimum: 1
+        type: integer
+    required:
+    - doctor_id
+    - end_time
+    - period
+    - schedule_date
+    - start_time
+    - total_slots
+    type: object
+  service.DashboardData:
+    properties:
+      appointment_trend:
+        description: 预约趋势（最近7天）
+        items:
+          $ref: '#/definitions/service.TrendData'
+        type: array
+      department_stats:
+        description: 科室统计
+        items:
+          $ref: '#/definitions/service.DepartmentStat'
+        type: array
+      recent_appointments:
+        description: 最近预约
+        items:
+          $ref: '#/definitions/model.AppointmentListVO'
+        type: array
+      today_appointments:
+        description: 今日预约数
+        type: integer
+      today_checkins:
+        description: 今日签到数
+        type: integer
+      total_appointments:
+        description: 总预约数
+        type: integer
+      total_departments:
+        description: 总科室数
+        type: integer
+      total_doctors:
+        description: 总医生数
+        type: integer
+      total_users:
+        description: 总用户数
+        type: integer
+    type: object
+  service.DepartmentRanking:
+    properties:
+      appointment_count:
+        type: integer
+      department_id:
+        type: integer
+      department_name:
+        type: string
+    type: object
+  service.DepartmentStat:
+    properties:
+      appointment_count:
+        description: 预约数
+        type: integer
+      department_name:
+        description: 科室名称
+        type: string
+      doctor_count:
+        description: 医生数
+        type: integer
+    type: object
+  service.DoctorStat:
+    properties:
+      appointment_count:
+        type: integer
+      completed_count:
+        type: integer
+      department_name:
+        type: string
+      doctor_id:
+        type: integer
+      doctor_name:
+        type: string
+      rating:
+        description: 评分（预留）
+        type: number
+    type: object
+  service.LoginRequest:
+    properties:
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  service.LoginResponse:
+    properties:
+      admin:
+        $ref: '#/definitions/model.AdminVO'
+      expires_in:
+        type: integer
+      token:
+        type: string
+    type: object
+  service.PasswordLoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  service.PhoneLoginRequest:
+    properties:
+      code:
+        type: string
+      phone:
+        type: string
+    required:
+    - code
+    - phone
+    type: object
+  service.RegisterRequest:
+    properties:
+      confirm_password:
+        type: string
+      nickname:
+        maxLength: 64
+        type: string
+      password:
+        maxLength: 20
+        minLength: 6
+        type: string
+      username:
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - confirm_password
+    - password
+    - username
+    type: object
+  service.ResetAdminPasswordRequest:
+    properties:
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+    required:
+    - password
+    type: object
+  service.StatisticsData:
+    properties:
+      appointment_stats:
+        allOf:
+        - $ref: '#/definitions/service.AppointmentStats'
+        description: 预约统计
+      department_ranking:
+        description: 科室排行
+        items:
+          $ref: '#/definitions/service.DepartmentRanking'
+        type: array
+      doctor_stats:
+        description: 医生统计
+        items:
+          $ref: '#/definitions/service.DoctorStat'
+        type: array
+      time_slot_distribution:
+        description: 时段分布
+        items:
+          $ref: '#/definitions/service.TimeSlotStat'
+        type: array
+    type: object
+  service.TimeSlotStat:
+    properties:
+      count:
+        type: integer
+      period:
+        description: morning/afternoon
+        type: string
+    type: object
+  service.TrendData:
+    properties:
+      count:
+        description: 数量
+        type: integer
+      date:
+        description: 日期 YYYY-MM-DD
+        type: string
+    type: object
+  service.UpdateAdminRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      phone:
+        type: string
+      role_ids:
+        items:
+          type: integer
+        type: array
+      status:
+        type: integer
+    type: object
+  service.UpdateAppointmentStatusRequest:
+    properties:
+      remark:
+        maxLength: 256
+        type: string
+      status:
+        enum:
+        - pending
+        - checked_in
+        - completed
+        - cancelled
+        - missed
+        type: string
+    required:
+    - status
+    type: object
+  service.UpdateDepartmentRequest:
+    properties:
+      description:
+        maxLength: 512
+        type: string
+      icon:
+        maxLength: 256
+        type: string
+      name:
+        maxLength: 64
+        minLength: 2
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: integer
+    required:
+    - name
+    type: object
+  service.UpdateDoctorRequest:
+    properties:
+      avatar:
+        maxLength: 512
+        type: string
+      department_id:
+        minimum: 1
+        type: integer
+      introduction:
+        maxLength: 2000
+        type: string
+      name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      sort_order:
+        type: integer
+      specialty:
+        maxLength: 256
+        type: string
+      status:
+        enum:
+        - 0
+        - 1
+        type: integer
+      title:
+        enum:
+        - chief_physician
+        - associate_chief_physician
+        - attending_physician
+        - resident_physician
+        type: string
+    required:
+    - department_id
+    - name
+    - title
+    type: object
+  service.UpdatePatientRequest:
+    properties:
+      id_card:
+        type: string
+      is_default:
+        enum:
+        - 0
+        - 1
+        type: integer
+      name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      phone:
+        type: string
+      relation:
+        enum:
+        - self
+        - parent
+        - child
+        - spouse
+        - other
+        type: string
+    required:
+    - id_card
+    - name
+    - phone
+    - relation
+    type: object
+  service.UpdateRoleRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: integer
+    type: object
+  service.UpdateScheduleRequest:
+    properties:
+      end_time:
+        description: HH:mm
+        type: string
+      start_time:
+        description: HH:mm
+        type: string
+      status:
+        enum:
+        - 0
+        - 1
+        type: integer
+      total_slots:
+        maximum: 999
+        minimum: 1
+        type: integer
+    required:
+    - end_time
+    - start_time
+    - total_slots
+    type: object
+  service.UpdateUserInfoRequest:
+    properties:
+      avatar:
+        maxLength: 512
+        type: string
+      gender:
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+      nickname:
+        maxLength: 64
+        type: string
+      phone:
+        type: string
+    type: object
+  service.UserLoginResponse:
+    properties:
+      expires_in:
+        type: integer
+      is_new:
+        description: 是否新用户
+        type: boolean
+      refresh_token:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/model.UserVO'
+    type: object
+  service.WeChatLoginRequest:
+    properties:
+      code:
+        description: 微信登录凭证
+        type: string
+    required:
+    - code
+    type: object
+  service.WeChatLoginResponse:
+    properties:
+      expires_in:
+        type: integer
+      is_new:
+        description: 是否新用户
+        type: boolean
+      refresh_token:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/model.UserVO'
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@huaan-medical.com
+    name: API Support
+  description: 华安医疗门诊预约系统后端API接口文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: 华安医疗预约系统 API
+  version: "1.0"
+paths:
+  /api/admin/admins:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询管理员列表
+      parameters:
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 关键词(用户名/昵称/手机号/邮箱)
+        in: query
+        name: keyword
+        type: string
+      - description: 状态 0禁用 1启用
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.AdminVO'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 管理员列表
+      tags:
+      - 管理员管理
+    post:
+      consumes:
+      - application/json
+      description: 创建管理员并可选绑定角色
+      parameters:
+      - description: 管理员信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AdminVO'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 创建管理员
+      tags:
+      - 管理员管理
+  /api/admin/admins/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 更新管理员信息与角色
+      parameters:
+      - description: 管理员ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 管理员信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AdminVO'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 更新管理员
+      tags:
+      - 管理员管理
+  /api/admin/admins/{id}/password:
+    put:
+      consumes:
+      - application/json
+      description: 重置管理员登录密码
+      parameters:
+      - description: 管理员ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 密码信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResetAdminPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAdmin: []
+      summary: 重置管理员密码
+      tags:
+      - 管理员管理
+  /api/admin/appointments:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询所有预约，支持日期范围、状态、关键词筛选
+      parameters:
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 开始日期（YYYY-MM-DD）
+        in: query
+        name: start_date
+        type: string
+      - description: 结束日期（YYYY-MM-DD）
+        in: query
+        name: end_date
+        type: string
+      - description: 预约状态
+        in: query
+        name: status
+        type: string
+      - description: 搜索关键词（预约编号、患者姓名、医生姓名）
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.AppointmentVO'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 查询预约列表（管理后台）
+      tags:
+      - 预约管理
+  /api/admin/appointments/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定预约的详细信息
+      parameters:
+      - description: 预约ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AppointmentVO'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 获取预约详情（管理后台）
+      tags:
+      - 预约管理
+    put:
+      consumes:
+      - application/json
+      description: 管理员更新预约状态
+      parameters:
+      - description: 预约ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 状态信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateAppointmentStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAdmin: []
+      summary: 更新预约状态（管理后台）
+      tags:
+      - 预约管理
+  /api/admin/appointments/export:
+    get:
+      consumes:
+      - application/json
+      description: 导出预约数据为CSV文件
+      parameters:
+      - description: 开始日期（YYYY-MM-DD）
+        in: query
+        name: start_date
+        type: string
+      - description: 结束日期（YYYY-MM-DD）
+        in: query
+        name: end_date
+        type: string
+      - description: 预约状态
+        in: query
+        name: status
+        type: string
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV文件
+          schema:
+            type: file
+      security:
+      - BearerAdmin: []
+      summary: 导出预约数据（管理后台）
+      tags:
+      - 预约管理
+  /api/admin/dashboard:
+    get:
+      consumes:
+      - application/json
+      description: 获取管理后台仪表盘统计数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.DashboardData'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 获取仪表盘数据
+      tags:
+      - 数据统计
+  /api/admin/departments:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询科室列表（管理后台）
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: 状态筛选
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageData'
+              type: object
+      security:
+      - Bearer: []
+      summary: 科室列表
+      tags:
+      - 科室管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新科室
+      parameters:
+      - description: 科室信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateDepartmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DepartmentVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建科室
+      tags:
+      - 科室管理
+  /api/admin/departments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除科室（软删除）
+      parameters:
+      - description: 科室ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除科室
+      tags:
+      - 科室管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取科室详情
+      parameters:
+      - description: 科室ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DepartmentVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取科室详情
+      tags:
+      - 科室管理
+    put:
+      consumes:
+      - application/json
+      description: 更新科室信息
+      parameters:
+      - description: 科室ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 科室信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateDepartmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DepartmentVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 更新科室
+      tags:
+      - 科室管理
+  /api/admin/doctors:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询医生列表（管理后台）
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: 科室ID筛选
+        in: query
+        name: department_id
+        type: integer
+      - description: 状态筛选
+        in: query
+        name: status
+        type: integer
+      - description: 关键词搜索
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageData'
+              type: object
+      security:
+      - Bearer: []
+      summary: 医生列表
+      tags:
+      - 医生管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新医生
+      parameters:
+      - description: 医生信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateDoctorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DoctorVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建医生
+      tags:
+      - 医生管理
+  /api/admin/doctors/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除医生（软删除）
+      parameters:
+      - description: 医生ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除医生
+      tags:
+      - 医生管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取医生详情
+      parameters:
+      - description: 医生ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DoctorVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取医生详情
+      tags:
+      - 医生管理
+    put:
+      consumes:
+      - application/json
+      description: 更新医生信息
+      parameters:
+      - description: 医生ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 医生信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateDoctorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DoctorVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 更新医生
+      tags:
+      - 医生管理
+  /api/admin/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录管理员的详细信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AdminVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取当前管理员信息
+      tags:
+      - 管理员
+  /api/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: 管理员账号密码登录
+      parameters:
+      - description: 登录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.LoginResponse'
+              type: object
+      summary: 管理员登录
+      tags:
+      - 管理员
+  /api/admin/logs/login:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询登录日志，支持关键词/状态/日期筛选
+      parameters:
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 用户类型 user/admin
+        in: query
+        name: user_type
+        type: string
+      - description: 状态 0失败 1成功
+        in: query
+        name: status
+        type: integer
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 开始日期（YYYY-MM-DD）
+        in: query
+        name: start_date
+        type: string
+      - description: 结束日期（YYYY-MM-DD）
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.LoginLogVO'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 查询登录日志（管理后台）
+      tags:
+      - 登录日志
+  /api/admin/logs/operation:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询操作日志，支持关键词/模块/日期筛选
+      parameters:
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 管理员ID
+        in: query
+        name: admin_id
+        type: integer
+      - description: 模块
+        in: query
+        name: module
+        type: string
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 开始日期（YYYY-MM-DD）
+        in: query
+        name: start_date
+        type: string
+      - description: 结束日期（YYYY-MM-DD）
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.OperationLogVO'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 查询操作日志（管理后台）
+      tags:
+      - 操作日志
+  /api/admin/password:
+    put:
+      consumes:
+      - application/json
+      description: 修改当前管理员密码
+      parameters:
+      - description: 密码信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改密码
+      tags:
+      - 管理员
+  /api/admin/patients:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询所有患者，支持关键词搜索
+      parameters:
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 搜索关键词（姓名、手机号）
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.PatientVO'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 查询患者列表（管理后台）
+      tags:
+      - 患者管理（后台）
+  /api/admin/patients/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定患者的详细信息
+      parameters:
+      - description: 患者ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PatientVO'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 获取患者详情（管理后台）
+      tags:
+      - 患者管理（后台）
+  /api/admin/roles:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询角色列表
+      parameters:
+      - description: 页码
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 关键词(编码/名称)
+        in: query
+        name: keyword
+        type: string
+      - description: 状态 0禁用 1启用
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.RoleVO'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 角色列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 创建角色
+      parameters:
+      - description: 角色信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RoleVO'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 创建角色
+      tags:
+      - 角色管理
+  /api/admin/roles/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 更新角色信息
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RoleVO'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 更新角色
+      tags:
+      - 角色管理
+  /api/admin/schedules:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询排班列表（管理后台）
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: 医生ID筛选
+        in: query
+        name: doctor_id
+        type: integer
+      - description: 科室ID筛选
+        in: query
+        name: department_id
+        type: integer
+      - description: 开始日期 YYYY-MM-DD
+        in: query
+        name: start_date
+        type: string
+      - description: 结束日期 YYYY-MM-DD
+        in: query
+        name: end_date
+        type: string
+      - description: 状态筛选
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageData'
+              type: object
+      security:
+      - Bearer: []
+      summary: 排班列表
+      tags:
+      - 排班管理
+    post:
+      consumes:
+      - application/json
+      description: 创建单个排班
+      parameters:
+      - description: 排班信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ScheduleVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建排班
+      tags:
+      - 排班管理
+  /api/admin/schedules/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除排班（软删除）
+      parameters:
+      - description: 排班ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除排班
+      tags:
+      - 排班管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取排班详情
+      parameters:
+      - description: 排班ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ScheduleVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取排班详情
+      tags:
+      - 排班管理
+    put:
+      consumes:
+      - application/json
+      description: 更新排班信息
+      parameters:
+      - description: 排班ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 排班信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ScheduleVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 更新排班
+      tags:
+      - 排班管理
+  /api/admin/schedules/batch:
+    post:
+      consumes:
+      - application/json
+      description: 批量创建多天/多时段的排班
+      parameters:
+      - description: 批量排班信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.BatchCreateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: integer
+                  type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 批量创建排班
+      tags:
+      - 排班管理
+  /api/admin/statistics:
+    get:
+      consumes:
+      - application/json
+      description: 获取各类统计数据，支持日期范围筛选
+      parameters:
+      - description: 开始日期（YYYY-MM-DD）
+        in: query
+        name: start_date
+        type: string
+      - description: 结束日期（YYYY-MM-DD）
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.StatisticsData'
+              type: object
+      security:
+      - BearerAdmin: []
+      summary: 获取统计数据
+      tags:
+      - 数据统计
+  /api/admin/upload/avatar:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传医生头像图片
+      parameters:
+      - description: 头像文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UploadAvatarResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: 上传头像
+      tags:
+      - 文件上传
+  /api/admin/upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传普通图片
+      parameters:
+      - description: 图片文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UploadAvatarResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: 上传图片
+      tags:
+      - 文件上传
+  /api/appointments:
+    get:
+      consumes:
+      - application/json
+      description: 查询当前用户的所有预约
+      parameters:
+      - description: 预约状态（pending/checked_in/completed/cancelled/missed）
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.AppointmentListVO'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询用户预约列表
+      tags:
+      - 预约
+    post:
+      consumes:
+      - application/json
+      description: 用户创建新预约
+      parameters:
+      - description: 预约信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateAppointmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AppointmentVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建预约
+      tags:
+      - 预约
+  /api/appointments/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定预约的详细信息
+      parameters:
+      - description: 预约ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AppointmentVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取预约详情
+      tags:
+      - 预约
+  /api/appointments/{id}/cancel:
+    put:
+      consumes:
+      - application/json
+      description: 用户取消预约（就诊当天不可取消）
+      parameters:
+      - description: 预约ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 取消原因
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CancelAppointmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 取消预约
+      tags:
+      - 预约
+  /api/appointments/{id}/checkin:
+    post:
+      consumes:
+      - application/json
+      description: 用户在预约时间范围内签到
+      parameters:
+      - description: 预约ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 预约签到
+      tags:
+      - 预约
+  /api/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 使用refresh_token刷新access_token
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/jwt.TokenPair'
+              type: object
+      summary: 刷新Token
+      tags:
+      - 用户
+  /api/departments:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有启用的科室列表（公开接口）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.DepartmentVO'
+                  type: array
+              type: object
+      summary: 获取所有科室
+      tags:
+      - 科室
+  /api/doctors:
+    get:
+      consumes:
+      - application/json
+      description: 获取启用的医生列表（公开接口）
+      parameters:
+      - description: 科室ID筛选
+        in: query
+        name: department_id
+        type: integer
+      - description: 关键词搜索
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.DoctorListVO'
+                  type: array
+              type: object
+      summary: 获取医生列表
+      tags:
+      - 医生
+  /api/doctors/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取医生详情（公开接口）
+      parameters:
+      - description: 医生ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DoctorVO'
+              type: object
+      summary: 获取医生详情
+      tags:
+      - 医生
+  /api/records:
+    get:
+      consumes:
+      - application/json
+      description: 查询当前用户的所有就诊记录
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.MedicalRecordListVO'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询就诊记录列表
+      tags:
+      - 就诊记录
+  /api/records/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定就诊记录的详细信息
+      parameters:
+      - description: 就诊记录ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.MedicalRecordVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取就诊记录详情
+      tags:
+      - 就诊记录
+  /api/schedule:
+    get:
+      consumes:
+      - application/json
+      description: 查询医生在指定日期范围内的排班
+      parameters:
+      - description: 医生ID
+        in: query
+        name: doctor_id
+        required: true
+        type: integer
+      - description: 开始日期 YYYY-MM-DD
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: 结束日期 YYYY-MM-DD
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.ScheduleVO'
+                  type: array
+              type: object
+      summary: 查询医生排班
+      tags:
+      - 排班
+  /api/schedule/available:
+    get:
+      consumes:
+      - application/json
+      description: 查询有剩余号源的排班列表
+      parameters:
+      - description: 医生ID筛选
+        in: query
+        name: doctor_id
+        type: integer
+      - description: 科室ID筛选
+        in: query
+        name: department_id
+        type: integer
+      - description: 开始日期 YYYY-MM-DD
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: 结束日期 YYYY-MM-DD
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.ScheduleVO'
+                  type: array
+              type: object
+      summary: 获取可预约时段
+      tags:
+      - 排班
+  /api/sms/send:
+    post:
+      consumes:
+      - application/json
+      description: 发送短信验证码
+      parameters:
+      - description: 手机号
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SendCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 发送验证码
+      tags:
+      - 短信
+  /api/token/idempotent:
+    get:
+      consumes:
+      - application/json
+      description: 获取用于防止重复提交的幂等Token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.IdempotentTokenResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取幂等Token
+      tags:
+      - Token
+  /api/user/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UserVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取用户信息
+      tags:
+      - 用户
+    put:
+      consumes:
+      - application/json
+      description: 更新当前用户信息
+      parameters:
+      - description: 用户信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateUserInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UserVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 更新用户信息
+      tags:
+      - 用户
+  /api/user/login:
+    post:
+      consumes:
+      - application/json
+      description: 微信小程序登录
+      parameters:
+      - description: 登录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.WeChatLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.WeChatLoginResponse'
+              type: object
+      summary: 微信登录
+      tags:
+      - 用户
+  /api/user/login/password:
+    post:
+      consumes:
+      - application/json
+      description: 用户名密码登录
+      parameters:
+      - description: 登录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.PasswordLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.UserLoginResponse'
+              type: object
+      summary: 密码登录
+      tags:
+      - 用户
+  /api/user/login/phone:
+    post:
+      consumes:
+      - application/json
+      description: 手机号验证码登录
+      parameters:
+      - description: 登录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.PhoneLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.UserLoginResponse'
+              type: object
+      summary: 手机号登录
+      tags:
+      - 用户
+  /api/user/patients:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的就诊人列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.PatientVO'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取就诊人列表
+      tags:
+      - 就诊人管理
+    post:
+      consumes:
+      - application/json
+      description: 添加新的就诊人
+      parameters:
+      - description: 就诊人信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreatePatientRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PatientVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建就诊人
+      tags:
+      - 就诊人管理
+  /api/user/patients/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除就诊人（软删除）
+      parameters:
+      - description: 就诊人ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除就诊人
+      tags:
+      - 就诊人管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取就诊人详情
+      parameters:
+      - description: 就诊人ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PatientVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取就诊人详情
+      tags:
+      - 就诊人管理
+    put:
+      consumes:
+      - application/json
+      description: 更新就诊人信息
+      parameters:
+      - description: 就诊人ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 就诊人信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdatePatientRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PatientVO'
+              type: object
+      security:
+      - Bearer: []
+      summary: 更新就诊人
+      tags:
+      - 就诊人管理
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      description: 用户名密码注册
+      parameters:
+      - description: 注册信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.UserLoginResponse'
+              type: object
+      summary: 用户注册
+      tags:
+      - 用户
+securityDefinitions:
+  Bearer:
+    description: 请在Token前加上"Bearer "前缀
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

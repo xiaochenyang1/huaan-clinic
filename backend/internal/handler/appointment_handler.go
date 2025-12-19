@@ -121,6 +121,33 @@ func (h *AppointmentHandler) GetByID(c *gin.Context) {
 	response.Success(c, appointment)
 }
 
+// GetByIDAdmin 获取预约详情（管理后台）
+// @Summary 获取预约详情（管理后台）
+// @Description 获取指定预约的详细信息
+// @Tags 预约管理
+// @Accept json
+// @Produce json
+// @Security BearerAdmin
+// @Param id path int true "预约ID"
+// @Success 200 {object} response.Response{data=model.AppointmentVO}
+// @Router /api/admin/appointments/{id} [get]
+func (h *AppointmentHandler) GetByIDAdmin(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
+		response.FailWithMessage(c, errorcode.ErrInvalidParams, "预约ID格式错误")
+		return
+	}
+
+	appointment, err := h.service.GetByIDAdmin(id)
+	if err != nil {
+		response.FailWithError(c, err)
+		return
+	}
+
+	response.Success(c, appointment)
+}
+
 // Cancel 取消预约
 // @Summary 取消预约
 // @Description 用户取消预约（就诊当天不可取消）

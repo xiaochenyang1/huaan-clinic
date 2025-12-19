@@ -15,12 +15,14 @@ import (
 // AdminService 管理员服务
 type AdminService struct {
 	repo *repository.AdminRepository
+	logRepo *repository.LogRepository
 }
 
 // NewAdminService 创建管理员服务实例
 func NewAdminService() *AdminService {
 	return &AdminService{
-		repo: repository.NewAdminRepository(),
+		repo:    repository.NewAdminRepository(),
+		logRepo: repository.NewLogRepository(),
 	}
 }
 
@@ -38,23 +40,27 @@ type LoginResponse struct {
 }
 
 // Login 管理员登录
-func (s *AdminService) Login(req *LoginRequest, clientIP string) (*LoginResponse, error) {
+func (s *AdminService) Login(req *LoginRequest, clientIP string, userAgent string) (*LoginResponse, error) {
 	// 查询管理员
 	admin, err := s.repo.GetByUsername(req.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.writeLoginLog(req.Username, 0, clientIP, userAgent, model.LoginStatusFailed, "管理员不存在")
 			return nil, errorcode.New(errorcode.ErrAdminNotFound)
 		}
+		s.writeLoginLog(req.Username, 0, clientIP, userAgent, model.LoginStatusFailed, "数据库错误")
 		return nil, errorcode.New(errorcode.ErrDatabase)
 	}
 
 	// 检查状态
 	if admin.Status == model.StatusDisabled {
+		s.writeLoginLog(admin.Username, admin.ID, clientIP, userAgent, model.LoginStatusFailed, "账号已禁用")
 		return nil, errorcode.New(errorcode.ErrAccountDisabled)
 	}
 
 	// 验证密码
 	if !utils.CheckPassword(req.Password, admin.Password) {
+		s.writeLoginLog(admin.Username, admin.ID, clientIP, userAgent, model.LoginStatusFailed, "密码错误")
 		return nil, errorcode.New(errorcode.ErrPasswordWrong)
 	}
 
@@ -72,12 +78,35 @@ func (s *AdminService) Login(req *LoginRequest, clientIP string) (*LoginResponse
 
 	// 更新登录信息
 	_ = s.repo.UpdateLoginInfo(admin.ID, clientIP)
+	s.writeLoginLog(admin.Username, admin.ID, clientIP, userAgent, model.LoginStatusSuccess, "登录成功")
 
 	return &LoginResponse{
 		Token:     token,
 		ExpiresIn: 7200, // 2小时
 		Admin:     admin.ToVO(),
 	}, nil
+}
+
+func (s *AdminService) writeLoginLog(username string, adminID int64, ip string, userAgent string, status int, msg string) {
+	if s.logRepo == nil {
+		return
+	}
+
+	device := userAgent
+	if len(device) > 256 {
+		device = device[:256]
+	}
+
+	_ = s.logRepo.CreateLoginLog(&model.LoginLog{
+		UserType:  model.UserTypeAdmin,
+		UserID:    adminID,
+		Username:  username,
+		LoginType: model.LoginTypePassword,
+		IP:        ip,
+		Device:    device,
+		Status:    status,
+		Message:   msg,
+	})
 }
 
 // GetAdminInfo 获取管理员信息

@@ -12,6 +12,14 @@ function getEnvApiBaseUrl() {
 
 export const API_BASE_URL = getEnvApiBaseUrl()
 
+function getRuntimeSubscribeTemplateIds() {
+  const tpl = globalThis?.__APP_CONFIG__?.WECHAT_SUBSCRIBE_TEMPLATE_IDS
+  if (tpl && typeof tpl === 'object') return tpl
+  const single = globalThis?.__APP_CONFIG__?.WECHAT_APPOINTMENT_REMINDER_TEMPLATE_ID
+  if (single) return { appointmentReminder: single }
+  return null
+}
+
 export const STORAGE_KEYS = {
   accessToken: 'access_token',
   refreshToken: 'refresh_token',
@@ -24,5 +32,5 @@ export const SUCCESS_CODE = 200000
 
 // 订阅消息模板ID（需要你在微信公众平台配置）
 export const WECHAT_SUBSCRIBE_TEMPLATE_IDS = {
-  appointmentReminder: '',
+  appointmentReminder: getRuntimeSubscribeTemplateIds()?.appointmentReminder || '',
 }

@@ -37,7 +37,7 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		return
 	}
 
-	result, err := h.service.Login(&req, c.ClientIP())
+	result, err := h.service.Login(&req, c.ClientIP(), c.Request.UserAgent())
 	if err != nil {
 		response.FailWithError(c, err)
 		return

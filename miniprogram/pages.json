@@ -9,6 +9,10 @@
       "style": { "navigationBarTitleText": "登录" }
     },
     {
+      "path": "pages/login/complete",
+      "style": { "navigationBarTitleText": "完善信息" }
+    },
+    {
       "path": "pages/appointment/department",
       "style": { "navigationBarTitleText": "选择科室" }
     },

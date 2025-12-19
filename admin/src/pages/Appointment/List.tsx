@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Table, Button, Space, Tag, Select, message } from 'antd'
-import { CheckOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icons'
+import { Table, Button, Space, Tag, Select, message, Drawer, Descriptions, Spin } from 'antd'
+import { CheckOutlined, CloseOutlined, DownloadOutlined, EyeOutlined } from '@ant-design/icons'
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
 import http from '@/utils/http'
 
@@ -11,15 +11,42 @@ interface Appointment {
   department_name: string
   appointment_date: string
   appointment_time: string
-  time_slot: string
+  period_name: string
   status: string
   status_name: string
   created_at: string
 }
 
+interface AppointmentDetail {
+  id: number
+  appointment_no: string
+  user_id: number
+  patient_id: number
+  patient_name: string
+  doctor_id: number
+  doctor_name: string
+  doctor_title: string
+  doctor_avatar?: string
+  department_id: number
+  department_name: string
+  appointment_date: string
+  period: string
+  period_name: string
+  appointment_time: string
+  slot_number: number
+  status: string
+  status_name: string
+  symptom?: string
+  cancel_reason?: string
+  cancelled_at?: string
+  checked_in_at?: string
+  completed_at?: string
+  created_at: string
+}
+
 const statusMap: Record<string, { color: string }> = {
   pending: { color: 'default' },
-  confirmed: { color: 'blue' },
+  checked_in: { color: 'blue' },
   cancelled: { color: 'red' },
   completed: { color: 'green' },
   missed: { color: 'orange' },
@@ -29,6 +56,9 @@ const AppointmentList = () => {
   const [data, setData] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState<string>()
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detail, setDetail] = useState<AppointmentDetail | null>(null)
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -58,8 +88,12 @@ const AppointmentList = () => {
     },
     {
       title: '预约时段',
-      dataIndex: 'time_slot',
       key: 'time_slot',
+      render: (_, record) => (
+        <span>
+          {record.period_name || '-'} {record.appointment_time || ''}
+        </span>
+      ),
     },
     {
       title: '状态',
@@ -78,18 +112,47 @@ const AppointmentList = () => {
     {
       title: '操作',
       key: 'action',
-      width: 180,
+      width: 220,
       render: (_, record) => (
         <Space size="middle">
+          <Button
+            type="link"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => openDetail(record.id)}
+          >
+            详情
+          </Button>
           {record.status === 'pending' && (
             <>
               <Button
                 type="link"
                 size="small"
                 icon={<CheckOutlined />}
-                onClick={() => handleUpdateStatus(record.id, 'confirmed')}
+                onClick={() => handleUpdateStatus(record.id, 'checked_in')}
               >
-                确认
+                签到
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                danger
+                icon={<CloseOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'cancelled')}
+              >
+                取消
+              </Button>
+            </>
+          )}
+          {record.status === 'checked_in' && (
+            <>
+              <Button
+                type="link"
+                size="small"
+                icon={<CheckOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'completed')}
+              >
+                完成
               </Button>
               <Button
                 type="link"
@@ -107,10 +170,26 @@ const AppointmentList = () => {
     },
   ]
 
+  const openDetail = async (id: number) => {
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setDetail(null)
+    try {
+      const response = await http.get(`/admin/appointments/${id}`)
+      if (response.data.code === 200000) {
+        setDetail(response.data.data)
+      }
+    } catch (error) {
+      console.error('获取预约详情失败:', error)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
   const fetchData = async (page = 1, pageSize = 10, status?: string) => {
     setLoading(true)
     try {
-      const params: any = {
+      const params: { page: number; page_size: number; status?: string } = {
         page,
         page_size: pageSize,
       }
@@ -160,7 +239,7 @@ const AppointmentList = () => {
 
   const handleExport = async () => {
     try {
-      const params: any = {}
+      const params: { status?: string } = {}
       if (selectedStatus) {
         params.status = selectedStatus
       }
@@ -179,7 +258,7 @@ const AppointmentList = () => {
 
       // 从响应头获取文件名，如果没有则使用默认名称
       const contentDisposition = response.headers['content-disposition']
-      let fileName = '预约数据.xlsx'
+      let fileName = '预约数据.csv'
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
         if (fileNameMatch && fileNameMatch[1]) {
@@ -211,8 +290,8 @@ const AppointmentList = () => {
             style={{ width: 150 }}
             onChange={handleStatusChange}
             options={[
-              { label: '待确认', value: 'pending' },
-              { label: '已确认', value: 'confirmed' },
+              { label: '待就诊', value: 'pending' },
+              { label: '已签到', value: 'checked_in' },
               { label: '已取消', value: 'cancelled' },
               { label: '已完成', value: 'completed' },
               { label: '爽约', value: 'missed' },
@@ -239,6 +318,40 @@ const AppointmentList = () => {
         }}
         onChange={handleTableChange}
       />
+
+      <Drawer
+        title="预约详情"
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        width={520}
+      >
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
+            <Spin />
+          </div>
+        ) : detail ? (
+          <Descriptions bordered column={1} size="small">
+            <Descriptions.Item label="预约编号">{detail.appointment_no}</Descriptions.Item>
+            <Descriptions.Item label="患者">{detail.patient_name}</Descriptions.Item>
+            <Descriptions.Item label="医生">{detail.doctor_name} {detail.doctor_title ? `(${detail.doctor_title})` : ''}</Descriptions.Item>
+            <Descriptions.Item label="科室">{detail.department_name}</Descriptions.Item>
+            <Descriptions.Item label="就诊时间">
+              {detail.appointment_date} {detail.period_name} {detail.appointment_time}（号序 {detail.slot_number}）
+            </Descriptions.Item>
+            <Descriptions.Item label="状态">
+              <Tag color={statusMap[detail.status]?.color}>{detail.status_name}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="症状描述">{detail.symptom || '-'}</Descriptions.Item>
+            <Descriptions.Item label="取消原因">{detail.cancel_reason || '-'}</Descriptions.Item>
+            <Descriptions.Item label="取消时间">{detail.cancelled_at || '-'}</Descriptions.Item>
+            <Descriptions.Item label="签到时间">{detail.checked_in_at || '-'}</Descriptions.Item>
+            <Descriptions.Item label="完成时间">{detail.completed_at || '-'}</Descriptions.Item>
+            <Descriptions.Item label="创建时间">{detail.created_at}</Descriptions.Item>
+          </Descriptions>
+        ) : (
+          <div style={{ color: '#6b7280' }}>暂无数据</div>
+        )}
+      </Drawer>
     </div>
   )
 }

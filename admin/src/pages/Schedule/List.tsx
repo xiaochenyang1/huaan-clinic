@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Table, Button, Space, Modal, Form, Input, Select, DatePicker, message, InputNumber, Row, Col, Tag } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, AppstoreAddOutlined } from '@ant-design/icons'
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import http from '@/utils/http'
 
 interface Schedule {
@@ -34,6 +34,14 @@ interface Department {
   name: string
 }
 
+type Filters = {
+  doctor_id?: number
+  department_id?: number
+  start_date?: string
+  end_date?: string
+  status?: number
+}
+
 const periodMap: Record<string, { color: string }> = {
   morning: { color: 'blue' },
   afternoon: { color: 'orange' },
@@ -59,13 +67,7 @@ const ScheduleList = () => {
     pageSize: 10,
     total: 0,
   })
-  const [filters, setFilters] = useState<{
-    doctor_id?: number
-    department_id?: number
-    start_date?: string
-    end_date?: string
-    status?: number
-  }>({})
+  const [filters, setFilters] = useState<Filters>({})
 
   const columns: ColumnsType<Schedule> = [
     {
@@ -169,7 +171,7 @@ const ScheduleList = () => {
   const fetchData = async (page = 1, pageSize = 10) => {
     setLoading(true)
     try {
-      const params: any = {
+      const params = {
         page,
         page_size: pageSize,
         ...filters,
@@ -236,7 +238,7 @@ const ScheduleList = () => {
     fetchData(newPagination.current || 1, newPagination.pageSize || 10)
   }
 
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,

@@ -1,9 +1,10 @@
 <script setup>
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
-import { bootstrapAuth } from './utils/auth'
+import { useUserStore } from './store'
 
 onLaunch(async () => {
-  await bootstrapAuth()
+  const userStore = useUserStore()
+  await userStore.bootstrap()
 })
 
 onShow(() => {})

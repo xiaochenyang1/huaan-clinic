@@ -12,6 +12,9 @@ import {
   UserSwitchOutlined,
   ScheduleOutlined,
   BarChartOutlined,
+  FileTextOutlined,
+  SettingOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons'
 
 const { Header, Sider, Content } = Layout
@@ -56,6 +59,21 @@ const MainLayout = () => {
       key: '/statistics',
       icon: <BarChartOutlined />,
       label: '数据统计',
+    },
+    {
+      key: '/system/admin',
+      icon: <SettingOutlined />,
+      label: '管理员管理',
+    },
+    {
+      key: '/system/role',
+      icon: <SafetyCertificateOutlined />,
+      label: '角色管理',
+    },
+    {
+      key: '/logs',
+      icon: <FileTextOutlined />,
+      label: '系统日志',
     },
   ]
 

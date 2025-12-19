@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, Row, Col, Statistic, Table, DatePicker, Space, Spin } from 'antd'
+import { Card, Row, Col, Statistic, Table, DatePicker, Spin } from 'antd'
 import { UserOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { Dayjs } from 'dayjs'
@@ -47,7 +47,10 @@ const Statistics = () => {
     dayjs(),
   ])
 
-  const doctorColumns: ColumnsType<any> = [
+  type DoctorStatRow = StatisticsData['doctor_stats'][number]
+  type DepartmentRankingRow = StatisticsData['department_ranking'][number]
+
+  const doctorColumns: ColumnsType<DoctorStatRow> = [
     {
       title: '医生姓名',
       dataIndex: 'doctor_name',
@@ -78,7 +81,7 @@ const Statistics = () => {
     },
   ]
 
-  const departmentColumns: ColumnsType<any> = [
+  const departmentColumns: ColumnsType<DepartmentRankingRow> = [
     {
       title: '排名',
       key: 'rank',
@@ -127,7 +130,7 @@ const Statistics = () => {
     }
   }
 
-  const handleDateChange = (dates: any) => {
+  const handleDateChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
     if (dates && dates[0] && dates[1]) {
       setDateRange([dates[0], dates[1]])
     }

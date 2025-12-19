@@ -2,7 +2,7 @@
   <view class="page">
     <view class="panel">
       <view class="panel-title">消息中心</view>
-      <view class="muted">当前为本地版消息中心（后续可接入服务端通知列表）。</view>
+      <view class="muted">当前为本地版消息中心（暂无服务端通知列表）。</view>
 
       <view class="card">
         <view class="row">
@@ -124,4 +124,3 @@ onShow(() => {
   text-decoration: underline;
 }
 </style>
-
