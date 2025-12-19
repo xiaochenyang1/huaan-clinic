@@ -122,15 +122,15 @@ var AdminRoutePermissions = map[string][]string{
 	"PUT /api/admin/password": {},
 
 	// 管理员管理
-	"GET /api/admin/admins":             {PermAdminView},
-	"POST /api/admin/admins":            {PermAdminCreate},
-	"PUT /api/admin/admins/:id":         {PermAdminUpdate},
+	"GET /api/admin/admins":              {PermAdminView},
+	"POST /api/admin/admins":             {PermAdminCreate},
+	"PUT /api/admin/admins/:id":          {PermAdminUpdate},
 	"PUT /api/admin/admins/:id/password": {PermAdminPassword},
 
 	// 角色管理
-	"GET /api/admin/roles":              {PermRoleView},
-	"POST /api/admin/roles":             {PermRoleCreate},
-	"PUT /api/admin/roles/:id":          {PermRoleUpdate},
+	"GET /api/admin/roles":                 {PermRoleView},
+	"POST /api/admin/roles":                {PermRoleCreate},
+	"PUT /api/admin/roles/:id":             {PermRoleUpdate},
 	"PUT /api/admin/roles/:id/permissions": {PermRolePermission},
 
 	// 权限清单
@@ -152,17 +152,17 @@ var AdminRoutePermissions = map[string][]string{
 	"GET /api/admin/patients/:id": {PermPatientView},
 
 	// 科室管理
-	"GET /api/admin/departments":     {PermDepartmentView},
-	"GET /api/admin/departments/:id": {PermDepartmentView},
-	"POST /api/admin/departments":    {PermDepartmentCreate},
-	"PUT /api/admin/departments/:id": {PermDepartmentUpdate},
+	"GET /api/admin/departments":        {PermDepartmentView},
+	"GET /api/admin/departments/:id":    {PermDepartmentView},
+	"POST /api/admin/departments":       {PermDepartmentCreate},
+	"PUT /api/admin/departments/:id":    {PermDepartmentUpdate},
 	"DELETE /api/admin/departments/:id": {PermDepartmentDelete},
 
 	// 医生管理
-	"GET /api/admin/doctors":     {PermDoctorView},
-	"GET /api/admin/doctors/:id": {PermDoctorView},
-	"POST /api/admin/doctors":    {PermDoctorCreate},
-	"PUT /api/admin/doctors/:id": {PermDoctorUpdate},
+	"GET /api/admin/doctors":        {PermDoctorView},
+	"GET /api/admin/doctors/:id":    {PermDoctorView},
+	"POST /api/admin/doctors":       {PermDoctorCreate},
+	"PUT /api/admin/doctors/:id":    {PermDoctorUpdate},
 	"DELETE /api/admin/doctors/:id": {PermDoctorDelete},
 
 	// 文件上传
@@ -170,15 +170,14 @@ var AdminRoutePermissions = map[string][]string{
 	"POST /api/admin/upload/image":  {PermUploadImage},
 
 	// 排班管理
-	"GET /api/admin/schedules":       {PermScheduleView},
-	"GET /api/admin/schedules/:id":   {PermScheduleView},
-	"POST /api/admin/schedules":      {PermScheduleCreate},
+	"GET /api/admin/schedules":        {PermScheduleView},
+	"GET /api/admin/schedules/:id":    {PermScheduleView},
+	"POST /api/admin/schedules":       {PermScheduleCreate},
 	"POST /api/admin/schedules/batch": {PermScheduleBatch},
-	"PUT /api/admin/schedules/:id":   {PermScheduleUpdate},
+	"PUT /api/admin/schedules/:id":    {PermScheduleUpdate},
 	"DELETE /api/admin/schedules/:id": {PermScheduleDelete},
 
 	// 系统日志
 	"GET /api/admin/logs/operation": {PermLogView},
 	"GET /api/admin/logs/login":     {PermLogView},
 }
-

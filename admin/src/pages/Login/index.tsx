@@ -21,6 +21,7 @@ const Login = () => {
       const response = await http.post('/admin/login', values)
       if (response.data.code === 200000) {
         localStorage.setItem('token', response.data.data.token)
+        localStorage.removeItem('permissions')
         message.success('登录成功')
         const from = (location.state as { from?: Location } | null)?.from?.pathname || '/dashboard'
         navigate(from, { replace: true })

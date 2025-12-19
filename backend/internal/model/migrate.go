@@ -24,6 +24,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&Admin{},
 		&Role{},
 		&Permission{},
+		&AdminRole{},
+		&RolePermission{},
 
 		// 日志相关
 		&OperationLog{},
@@ -44,6 +46,8 @@ func GetAllModels() []interface{} {
 		&Admin{},
 		&Role{},
 		&Permission{},
+		&AdminRole{},
+		&RolePermission{},
 		&OperationLog{},
 		&LoginLog{},
 	}

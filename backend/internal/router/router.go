@@ -52,6 +52,7 @@ func Setup(mode string) *gin.Engine {
 	logHandler := handler.NewLogHandler()
 	adminManageHandler := handler.NewAdminManageHandler()
 	roleHandler := handler.NewRoleHandler()
+	permissionHandler := handler.NewPermissionHandler()
 
 	// API路由组
 	api := r.Group("/api")
@@ -63,7 +64,7 @@ func Setup(mode string) *gin.Engine {
 		setupUserRoutes(api, userHandler, patientHandler, tokenHandler, appointmentHandler, medicalRecordHandler)
 
 		// 管理后台接口（需要管理员认证）
-		setupAdminRoutes(api, adminHandler, deptHandler, doctorHandler, scheduleHandler, uploadHandler, appointmentHandler, patientHandler, statisticsHandler, logHandler, adminManageHandler, roleHandler)
+		setupAdminRoutes(api, adminHandler, deptHandler, doctorHandler, scheduleHandler, uploadHandler, appointmentHandler, patientHandler, statisticsHandler, logHandler, adminManageHandler, roleHandler, permissionHandler)
 	}
 
 	return r
@@ -130,12 +131,12 @@ func setupUserRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler, pati
 }
 
 // setupAdminRoutes 设置管理后台路由（需要管理员认证）
-func setupAdminRoutes(rg *gin.RouterGroup, adminHandler *handler.AdminHandler, deptHandler *handler.DepartmentHandler, doctorHandler *handler.DoctorHandler, scheduleHandler *handler.ScheduleHandler, uploadHandler *handler.UploadHandler, appointmentHandler *handler.AppointmentHandler, patientHandler *handler.PatientHandler, statisticsHandler *handler.StatisticsHandler, logHandler *handler.LogHandler, adminManageHandler *handler.AdminManageHandler, roleHandler *handler.RoleHandler) {
+func setupAdminRoutes(rg *gin.RouterGroup, adminHandler *handler.AdminHandler, deptHandler *handler.DepartmentHandler, doctorHandler *handler.DoctorHandler, scheduleHandler *handler.ScheduleHandler, uploadHandler *handler.UploadHandler, appointmentHandler *handler.AppointmentHandler, patientHandler *handler.PatientHandler, statisticsHandler *handler.StatisticsHandler, logHandler *handler.LogHandler, adminManageHandler *handler.AdminManageHandler, roleHandler *handler.RoleHandler, permissionHandler *handler.PermissionHandler) {
 	// 管理员登录（公开）
 	rg.POST("/admin/login", adminHandler.Login)
 
 	admin := rg.Group("/admin")
-	admin.Use(middleware.JWTAdminAuth())
+	admin.Use(middleware.JWTAdminAuth(), middleware.AdminRBAC())
 	{
 		// 管理员信息
 		admin.GET("/info", adminHandler.GetInfo)
@@ -152,6 +153,10 @@ func setupAdminRoutes(rg *gin.RouterGroup, adminHandler *handler.AdminHandler, d
 		admin.POST("/roles", roleHandler.CreateRole)
 		admin.PUT("/roles/:id", roleHandler.UpdateRole)
 		admin.PUT("/roles/:id/permissions", roleHandler.UpdateRolePermissions)
+
+		// 权限清单
+		admin.GET("/permissions", permissionHandler.ListAllPermissions)
+		admin.GET("/permissions/me", permissionHandler.MyPermissions)
 
 		// 仪表盘
 		admin.GET("/dashboard", statisticsHandler.GetDashboard)

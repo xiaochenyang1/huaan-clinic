@@ -16,6 +16,7 @@ import {
   SettingOutlined,
   SafetyCertificateOutlined,
 } from '@ant-design/icons'
+import { hasAnyPermission } from '@/utils/permissions'
 
 const { Header, Sider, Content } = Layout
 
@@ -24,58 +25,22 @@ const MainLayout = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const menuItems: MenuProps['items'] = [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: '仪表盘',
-    },
-    {
-      key: '/department',
-      icon: <MedicineBoxOutlined />,
-      label: '科室管理',
-    },
-    {
-      key: '/doctor',
-      icon: <TeamOutlined />,
-      label: '医生管理',
-    },
-    {
-      key: '/schedule',
-      icon: <ScheduleOutlined />,
-      label: '排班管理',
-    },
-    {
-      key: '/appointment',
-      icon: <CalendarOutlined />,
-      label: '预约管理',
-    },
-    {
-      key: '/patient',
-      icon: <UserOutlined />,
-      label: '患者管理',
-    },
-    {
-      key: '/statistics',
-      icon: <BarChartOutlined />,
-      label: '数据统计',
-    },
-    {
-      key: '/system/admin',
-      icon: <SettingOutlined />,
-      label: '管理员管理',
-    },
-    {
-      key: '/system/role',
-      icon: <SafetyCertificateOutlined />,
-      label: '角色管理',
-    },
-    {
-      key: '/logs',
-      icon: <FileTextOutlined />,
-      label: '系统日志',
-    },
+  const rawMenuItems: Array<{ key: string; icon: JSX.Element; label: string; perms?: string[] }> = [
+    { key: '/dashboard', icon: <DashboardOutlined />, label: '仪表盘', perms: ['statistics:view'] },
+    { key: '/department', icon: <MedicineBoxOutlined />, label: '科室管理', perms: ['department:view'] },
+    { key: '/doctor', icon: <TeamOutlined />, label: '医生管理', perms: ['doctor:view'] },
+    { key: '/schedule', icon: <ScheduleOutlined />, label: '排班管理', perms: ['schedule:view'] },
+    { key: '/appointment', icon: <CalendarOutlined />, label: '预约管理', perms: ['appointment:view'] },
+    { key: '/patient', icon: <UserOutlined />, label: '患者管理', perms: ['patient:view'] },
+    { key: '/statistics', icon: <BarChartOutlined />, label: '数据统计', perms: ['statistics:view'] },
+    { key: '/system/admin', icon: <SettingOutlined />, label: '管理员管理', perms: ['admin:view'] },
+    { key: '/system/role', icon: <SafetyCertificateOutlined />, label: '角色管理', perms: ['role:view'] },
+    { key: '/logs', icon: <FileTextOutlined />, label: '系统日志', perms: ['log:view'] },
   ]
+
+  const menuItems: MenuProps['items'] = rawMenuItems
+    .filter((item) => !item.perms || hasAnyPermission(item.perms))
+    .map(({ perms, ...rest }) => rest)
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -101,6 +66,7 @@ const MainLayout = () => {
   const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
     if (key === 'logout') {
       localStorage.removeItem('token')
+      localStorage.removeItem('permissions')
       navigate('/login')
     } else if (key === 'profile') {
       navigate('/profile')

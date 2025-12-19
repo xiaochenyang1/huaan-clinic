@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -12,6 +13,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+
+	"huaan-medical/internal/rbac"
 )
 
 // 定义临时的模型结构（避免依赖主项目）
@@ -19,12 +22,13 @@ type Admin struct {
 	ID        int64     `gorm:"primarykey"`
 	Username  string    `gorm:"size:50;not null;uniqueIndex"`
 	Password  string    `gorm:"size:255;not null"`
-	Name      string    `gorm:"size:50;not null"`
+	Nickname  string    `gorm:"size:50"`
+	Avatar    string    `gorm:"size:255"`
 	Phone     string    `gorm:"size:20"`
 	Email     string    `gorm:"size:100"`
-	Avatar    string    `gorm:"size:255"`
-	Status    string    `gorm:"size:20;not null;default:active"`
-	LastLogin *time.Time
+	Status    int       `gorm:"type:tinyint;not null;default:1"`
+	LastLoginAt *time.Time
+	LastLoginIP string `gorm:"size:64"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -36,12 +40,9 @@ func (Admin) TableName() string {
 type Department struct {
 	ID          int64  `gorm:"primarykey"`
 	Name        string `gorm:"size:50;not null;uniqueIndex"`
-	Code        string `gorm:"size:20;not null;uniqueIndex"`
-	Category    string `gorm:"size:50;not null"`
 	Description string `gorm:"type:text"`
-	Location    string `gorm:"size:100"`
-	Phone       string `gorm:"size:20"`
-	Status      string `gorm:"size:20;not null;default:active"`
+	Icon        string `gorm:"size:255"`
+	Status      int    `gorm:"type:tinyint;not null;default:1"`
 	SortOrder   int    `gorm:"default:0"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -53,10 +54,11 @@ func (Department) TableName() string {
 
 type Role struct {
 	ID          int64  `gorm:"primarykey"`
-	Name        string `gorm:"size:50;not null;uniqueIndex"`
+	Name        string `gorm:"size:50;not null"`
 	Code        string `gorm:"size:50;not null;uniqueIndex"`
 	Description string `gorm:"size:255"`
-	Status      string `gorm:"size:20;not null;default:active"`
+	SortOrder   int    `gorm:"default:0"`
+	Status      int    `gorm:"type:tinyint;not null;default:1"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -69,14 +71,33 @@ type Permission struct {
 	ID          int64  `gorm:"primarykey"`
 	Name        string `gorm:"size:50;not null"`
 	Code        string `gorm:"size:100;not null;uniqueIndex"`
-	Category    string `gorm:"size:50;not null"`
+	Module      string `gorm:"size:50;not null"`
 	Description string `gorm:"size:255"`
+	SortOrder   int    `gorm:"default:0"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
 
 func (Permission) TableName() string {
 	return "permissions"
+}
+
+type AdminRole struct {
+	AdminID int64 `gorm:"primarykey"`
+	RoleID  int64 `gorm:"primarykey"`
+}
+
+func (AdminRole) TableName() string {
+	return "admin_roles"
+}
+
+type RolePermission struct {
+	RoleID       int64 `gorm:"primarykey"`
+	PermissionID int64 `gorm:"primarykey"`
+}
+
+func (RolePermission) TableName() string {
+	return "role_permissions"
 }
 
 func main() {
@@ -120,12 +141,13 @@ func main() {
 func seedAdmins(db *gorm.DB) error {
 	fmt.Println("→ 初始化管理员...")
 
-	// 检查是否已存在管理员
-	var count int64
-	db.Model(&Admin{}).Count(&count)
-	if count > 0 {
-		fmt.Println("  管理员已存在，跳过")
+	// 检查默认管理员是否存在
+	var existing Admin
+	if err := db.Where("username = ?", "admin").First(&existing).Error; err == nil {
+		fmt.Println("  默认管理员已存在，跳过创建")
 		return nil
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
 	}
 
 	// 生成密码哈希
@@ -139,10 +161,10 @@ func seedAdmins(db *gorm.DB) error {
 		{
 			Username: "admin",
 			Password: string(hash),
-			Name:     "系统管理员",
+			Nickname: "系统管理员",
 			Phone:    "13800138000",
 			Email:    "admin@huaan-medical.com",
-			Status:   "active",
+			Status:   1,
 		},
 	}
 
@@ -170,102 +192,62 @@ func seedDepartments(db *gorm.DB) error {
 	departments := []Department{
 		{
 			Name:        "内科",
-			Code:        "NK",
-			Category:    "临床科室",
 			Description: "内科门诊，诊治各种内科疾病",
-			Location:    "门诊楼2层",
-			Phone:       "0595-12345678",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   1,
 		},
 		{
 			Name:        "外科",
-			Code:        "WK",
-			Category:    "临床科室",
 			Description: "外科门诊，诊治各种外科疾病",
-			Location:    "门诊楼3层",
-			Phone:       "0595-12345679",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   2,
 		},
 		{
 			Name:        "儿科",
-			Code:        "EK",
-			Category:    "临床科室",
 			Description: "儿科门诊，专注儿童疾病诊疗",
-			Location:    "门诊楼4层",
-			Phone:       "0595-12345680",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   3,
 		},
 		{
 			Name:        "妇产科",
-			Code:        "FCK",
-			Category:    "临床科室",
 			Description: "妇产科门诊，提供妇科和产科医疗服务",
-			Location:    "门诊楼5层",
-			Phone:       "0595-12345681",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   4,
 		},
 		{
 			Name:        "骨科",
-			Code:        "GK",
-			Category:    "临床科室",
 			Description: "骨科门诊，诊治骨骼肌肉系统疾病",
-			Location:    "门诊楼6层",
-			Phone:       "0595-12345682",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   5,
 		},
 		{
 			Name:        "皮肤科",
-			Code:        "PFK",
-			Category:    "临床科室",
 			Description: "皮肤科门诊，诊治各种皮肤疾病",
-			Location:    "门诊楼7层",
-			Phone:       "0595-12345683",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   6,
 		},
 		{
 			Name:        "眼科",
-			Code:        "YK",
-			Category:    "临床科室",
 			Description: "眼科门诊，诊治眼部疾病",
-			Location:    "门诊楼8层",
-			Phone:       "0595-12345684",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   7,
 		},
 		{
 			Name:        "耳鼻喉科",
-			Code:        "EBHK",
-			Category:    "临床科室",
 			Description: "耳鼻喉科门诊，诊治耳鼻喉疾病",
-			Location:    "门诊楼9层",
-			Phone:       "0595-12345685",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   8,
 		},
 		{
 			Name:        "口腔科",
-			Code:        "KQK",
-			Category:    "临床科室",
 			Description: "口腔科门诊，提供口腔诊疗服务",
-			Location:    "门诊楼10层",
-			Phone:       "0595-12345686",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   9,
 		},
 		{
 			Name:        "中医科",
-			Code:        "ZYK",
-			Category:    "临床科室",
 			Description: "中医科门诊，提供中医诊疗服务",
-			Location:    "门诊楼11层",
-			Phone:       "0595-12345687",
-			Status:      "active",
+			Status:      1,
 			SortOrder:   10,
 		},
 	}

@@ -14,6 +14,7 @@ import Logs from '@/pages/Logs'
 import AdminManagement from '@/pages/System/Admin'
 import RoleManagement from '@/pages/System/Role'
 import RequireAuth from './RequireAuth'
+import RequirePermission from './RequirePermission'
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -35,43 +36,83 @@ const AppRouter = () => {
         },
         {
           path: 'dashboard',
-          element: <Dashboard />,
+          element: (
+            <RequirePermission any={['statistics:view']}>
+              <Dashboard />
+            </RequirePermission>
+          ),
         },
         {
           path: 'department',
-          element: <DepartmentList />,
+          element: (
+            <RequirePermission any={['department:view']}>
+              <DepartmentList />
+            </RequirePermission>
+          ),
         },
         {
           path: 'doctor',
-          element: <DoctorList />,
+          element: (
+            <RequirePermission any={['doctor:view']}>
+              <DoctorList />
+            </RequirePermission>
+          ),
         },
         {
           path: 'schedule',
-          element: <ScheduleList />,
+          element: (
+            <RequirePermission any={['schedule:view']}>
+              <ScheduleList />
+            </RequirePermission>
+          ),
         },
         {
           path: 'appointment',
-          element: <AppointmentList />,
+          element: (
+            <RequirePermission any={['appointment:view']}>
+              <AppointmentList />
+            </RequirePermission>
+          ),
         },
         {
           path: 'patient',
-          element: <PatientList />,
+          element: (
+            <RequirePermission any={['patient:view']}>
+              <PatientList />
+            </RequirePermission>
+          ),
         },
         {
           path: 'statistics',
-          element: <Statistics />,
+          element: (
+            <RequirePermission any={['statistics:view']}>
+              <Statistics />
+            </RequirePermission>
+          ),
         },
         {
           path: 'system/admin',
-          element: <AdminManagement />,
+          element: (
+            <RequirePermission any={['admin:view']}>
+              <AdminManagement />
+            </RequirePermission>
+          ),
         },
         {
           path: 'system/role',
-          element: <RoleManagement />,
+          element: (
+            <RequirePermission any={['role:view']}>
+              <RoleManagement />
+            </RequirePermission>
+          ),
         },
         {
           path: 'logs',
-          element: <Logs />,
+          element: (
+            <RequirePermission any={['log:view']}>
+              <Logs />
+            </RequirePermission>
+          ),
         },
         {
           path: 'profile',

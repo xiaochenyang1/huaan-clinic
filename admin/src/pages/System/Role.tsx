@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Table, Button, Space, Modal, Form, Input, Select, InputNumber, Tag, message } from 'antd'
 import { PlusOutlined, EditOutlined } from '@ant-design/icons'
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
@@ -15,8 +15,18 @@ interface Role {
   permissions?: string[]
 }
 
+interface Permission {
+  id: number
+  code: string
+  name: string
+  module: string
+  description: string
+  sort_order: number
+}
+
 const RoleManagement = () => {
   const [data, setData] = useState<Role[]>([])
+  const [permissions, setPermissions] = useState<Permission[]>([])
   const [loading, setLoading] = useState(false)
   const [keyword, setKeyword] = useState('')
   const [status, setStatus] = useState<number | undefined>()
@@ -55,10 +65,45 @@ const RoleManagement = () => {
     }
   }
 
+  const fetchPermissions = async () => {
+    try {
+      const response = await http.get('/admin/permissions')
+      if (response.data.code === 200000) {
+        setPermissions(response.data.data || [])
+      }
+    } catch (error) {
+      console.error('获取权限清单失败:', error)
+      setPermissions([])
+    }
+  }
+
   useEffect(() => {
     fetchData()
+    fetchPermissions()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const codeToPermissionId = useMemo(() => {
+    const map: Record<string, number> = {}
+    permissions.forEach((p) => { map[p.code] = p.id })
+    return map
+  }, [permissions])
+
+  const permissionOptions = useMemo(() => {
+    const groups: Record<string, Permission[]> = {}
+    permissions.forEach((p) => {
+      const m = p.module || 'other'
+      if (!groups[m]) groups[m] = []
+      groups[m].push(p)
+    })
+    return Object.entries(groups).map(([module, list]) => ({
+      label: module,
+      options: list
+        .slice()
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        .map((p) => ({ label: `${p.name} (${p.code})`, value: p.id })),
+    }))
+  }, [permissions])
 
   const columns: ColumnsType<Role> = [
     {
@@ -133,6 +178,9 @@ const RoleManagement = () => {
       description: record.description,
       sort_order: record.sort_order,
       status: record.status,
+      permission_ids: (record.permissions || [])
+        .map((code) => codeToPermissionId[code])
+        .filter(Boolean),
     })
     setModalVisible(true)
   }
@@ -141,14 +189,31 @@ const RoleManagement = () => {
     try {
       const values = await form.validateFields()
       if (editing) {
-        const response = await http.put(`/admin/roles/${editing.id}`, values)
+        const response = await http.put(`/admin/roles/${editing.id}`, {
+          code: values.code,
+          name: values.name,
+          description: values.description,
+          sort_order: values.sort_order,
+          status: values.status,
+        })
         if (response.data.code === 200000) {
           message.success('更新成功')
         }
+        await http.put(`/admin/roles/${editing.id}/permissions`, { permission_ids: values.permission_ids || [] })
       } else {
-        const response = await http.post('/admin/roles', values)
+        const response = await http.post('/admin/roles', {
+          code: values.code,
+          name: values.name,
+          description: values.description,
+          sort_order: values.sort_order,
+          status: values.status,
+        })
         if (response.data.code === 200000) {
           message.success('创建成功')
+          const id = response.data.data?.id
+          if (id) {
+            await http.put(`/admin/roles/${id}/permissions`, { permission_ids: values.permission_ids || [] })
+          }
         }
       }
       setModalVisible(false)
@@ -249,6 +314,16 @@ const RoleManagement = () => {
           <Form.Item name="sort_order" label="排序">
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
+          <Form.Item name="permission_ids" label="权限">
+            <Select
+              mode="multiple"
+              placeholder={permissions.length > 0 ? '请选择权限' : '暂无权限清单（可能无权限或未初始化）'}
+              options={permissionOptions}
+              optionFilterProp="label"
+              showSearch
+              disabled={permissions.length === 0}
+            />
+          </Form.Item>
           <Form.Item
             name="status"
             label="状态"
@@ -268,4 +343,3 @@ const RoleManagement = () => {
 }
 
 export default RoleManagement
-

@@ -70,6 +70,7 @@ http.interceptors.response.use(
         case 401:
           message.error('未授权，请重新登录')
           localStorage.removeItem('token')
+          localStorage.removeItem('permissions')
           window.location.href = '/login'
           break
         case 403:
